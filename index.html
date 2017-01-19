@@ -76,6 +76,7 @@ WebVRConfig = {
   VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
    -->
 <script src="node_modules/three/examples/js/controls/VRControls.js"></script>
+<script src="node_modules/three-firstperson-vr-controls/FirstPersonVRControls.js"></script>
 
 <!--
   VREffect.js handles stereo camera setup and rendering.
@@ -108,9 +109,14 @@ var scene = new THREE.Scene();
 // Create a three.js camera.
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 
-var controls = new THREE.VRControls(camera);
-controls.standing = true;
-controls.standing = true;
+// Create VRControls in addition to FirstPersonVRControls.
+var vrControls = new THREE.VRControls(camera);
+var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
+// Optionally enable vertical movement.
+fpVrControls.verticalMovement = true;
+
+/*var controls = new THREE.VRControls(camera);
+controls.standing = true;*/
 
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
@@ -136,7 +142,7 @@ function onTextureLoaded(texture) {
 
   // Align the skybox to the floor (which is at y=0).
   skybox = new THREE.Mesh(geometry, material);
-  skybox.position.y = boxSize/2;
+  //skybox.position.y = boxSize/2;
   scene.add(skybox);
 
   // For high end VR devices like Vive and Oculus, take into account the stage
@@ -158,7 +164,7 @@ var material = new THREE.MeshNormalMaterial();
 var cube = new THREE.Mesh(geometry, material);
 
 // Position cube mesh to be right in front of you.
-cube.position.set(0, controls.userHeight, -1);
+cube.position.set(0, 1, -1);
 
 // Add cube mesh to your three.js scene
 scene.add(cube);
@@ -175,7 +181,12 @@ function animate(timestamp) {
   // Apply rotation to cube mesh
   cube.rotation.y += delta * 0.0006;
 
-  controls.update();
+  // Update FirstPersonVRControls after VRControls.
+  // FirstPersonVRControls requires a timestamp.
+  vrControls.update();
+  fpVrControls.update(timestamp);
+
+  //controls.update();
   // Render the scene through the manager.
   manager.render(scene, camera, timestamp);
   effect.render(scene, camera);
@@ -219,7 +230,7 @@ function setStageDimensions(stage) {
   scene.add(skybox);
 
   // Place the cube in the middle of the scene, at user height.
-  cube.position.set(0, controls.userHeight, 0);
+  cube.position.set(0, 1, -1);
 }
 
 </script>

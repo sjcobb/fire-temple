@@ -12,7 +12,7 @@
 body {
   width: 100%;
   height: 100%;
-  background-color: #000;
+  background-color: #FF3C02;
   color: #fff;
   margin: 0px;
   padding: 0;
@@ -65,7 +65,7 @@ WebVRConfig = {
 <!--
   A polyfill for Promises. Needed for IE and Edge.
   -->
-<script src="node_modules/es6-promise/dist/es6-promise.js"></script>
+<script src="js/lib/es6-promise.js"></script>
 
 <!--
   three.js 3d library
@@ -93,145 +93,297 @@ WebVRConfig = {
   -->
 <script src="build/webvr-manager.js"></script>
 
+<div id="container"></div>
 
 <script>
-// Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
-// Only enable it if you actually need to.
-var renderer = new THREE.WebGLRenderer({antialias: true});
-renderer.setPixelRatio(window.devicePixelRatio);
 
-// Append the canvas element created by the renderer to document body element.
-document.body.appendChild(renderer.domElement);
+  // player motion parameters
 
-// Create a three.js scene.
-var scene = new THREE.Scene();
+  var motion = {
+    airborne : false,
+    position : new THREE.Vector3(), velocity : new THREE.Vector3(),
+    rotation : new THREE.Vector2(), spinning : new THREE.Vector2()
+  };
 
-// Create a three.js camera.
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-
-// Create VRControls in addition to FirstPersonVRControls.
-var vrControls = new THREE.VRControls(camera);
-var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
-// Optionally enable vertical movement.
-fpVrControls.verticalMovement = true;
-
-/*var controls = new THREE.VRControls(camera);
-controls.standing = true;*/
-
-// Apply VR stereo rendering to renderer.
-var effect = new THREE.VREffect(renderer);
-effect.setSize(window.innerWidth, window.innerHeight);
+  motion.position.y = -150;
 
 
-// Add a repeating grid as a skybox.
-var boxSize = 5;
-var loader = new THREE.TextureLoader();
-loader.load('img/box.png', onTextureLoaded);
+  // game systems code
 
-function onTextureLoaded(texture) {
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(boxSize, boxSize);
-
-  var geometry = new THREE.BoxGeometry(boxSize, boxSize, boxSize);
-  var material = new THREE.MeshBasicMaterial({
-    map: texture,
-    color: 0x01BE00,
-    side: THREE.BackSide
-  });
-
-  // Align the skybox to the floor (which is at y=0).
-  skybox = new THREE.Mesh(geometry, material);
-  //skybox.position.y = boxSize/2;
-  scene.add(skybox);
-
-  // For high end VR devices like Vive and Oculus, take into account the stage
-  // parameters provided.
-  setupStage();
-}
-
-
-// Create a VR manager helper to enter and exit VR mode.
-var params = {
-  hideButton: false, // Default: false.
-  isUndistorted: false // Default: false.
-};
-var manager = new WebVRManager(renderer, effect, params);
-
-// Create 3D objects.
-var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-var material = new THREE.MeshNormalMaterial();
-var cube = new THREE.Mesh(geometry, material);
-
-// Position cube mesh to be right in front of you.
-cube.position.set(0, 1, -1);
-
-// Add cube mesh to your three.js scene
-scene.add(cube);
-
-window.addEventListener('resize', onResize, true);
-window.addEventListener('vrdisplaypresentchange', onResize, true);
-
-// Request animation frame loop function
-var lastRender = 0;
-function animate(timestamp) {
-  var delta = Math.min(timestamp - lastRender, 500);
-  lastRender = timestamp;
-
-  // Apply rotation to cube mesh
-  cube.rotation.y += delta * 0.0006;
-
-  // Update FirstPersonVRControls after VRControls.
-  // FirstPersonVRControls requires a timestamp.
-  vrControls.update();
-  fpVrControls.update(timestamp);
-
-  //controls.update();
-  // Render the scene through the manager.
-  manager.render(scene, camera, timestamp);
-  effect.render(scene, camera);
-
-  vrDisplay.requestAnimationFrame(animate);
-}
-
-function onResize(e) {
-  effect.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-}
-
-var vrDisplay;
-
-// Get the HMD, and if we're dealing with something that specifies
-// stageParameters, rearrange the scene.
-function setupStage() {
-  navigator.getVRDisplays().then(function(displays) {
-    if (displays.length > 0) {
-      vrDisplay = displays[0];
-      if (vrDisplay.stageParameters) {
-        setStageDimensions(vrDisplay.stageParameters);
-      }
-      vrDisplay.requestAnimationFrame(animate);
+  var resetPlayer = function() {
+    if( motion.position.y < -123 ) {
+      motion.position.set( -2, 7.7, 25 );
+      motion.velocity.multiplyScalar( 0 );
     }
-  });
-}
+  };
 
-function setStageDimensions(stage) {
-  // Make the skybox fit the stage.
-  var material = skybox.material;
-  scene.remove(skybox);
+  var keyboardControls = (function() {
 
-  // Size the skybox according to the size of the actual stage.
-  var geometry = new THREE.BoxGeometry(stage.sizeX, boxSize, stage.sizeZ);
-  skybox = new THREE.Mesh(geometry, material);
+    var keys = { SP : 32, W : 87, A : 65, S : 83, D : 68, UP : 38, LT : 37, DN : 40, RT : 39 };
 
-  // Place it on the floor.
-  skybox.position.y = boxSize/2;
-  scene.add(skybox);
+    var keysPressed = {};
 
-  // Place the cube in the middle of the scene, at user height.
-  cube.position.set(0, 1, -1);
-}
+    (function( watchedKeyCodes ) {
+      var handler = function( down ) {
+        return function( e ) {
+          var index = watchedKeyCodes.indexOf( e.keyCode );
+          if( index >= 0 ) {
+            keysPressed[watchedKeyCodes[index]] = down; e.preventDefault();
+          }
+        };
+      };
+      window.addEventListener( "keydown", handler( true ), false );
+      window.addEventListener( "keyup", handler( false ), false );
+    })([
+      keys.SP, keys.W, keys.A, keys.S, keys.D, keys.UP, keys.LT, keys.DN, keys.RT
+    ]);
+
+    var forward = new THREE.Vector3();
+    var sideways = new THREE.Vector3();
+
+    return function() {
+      if( !motion.airborne ) {
+
+        // look around
+        var sx = keysPressed[keys.UP] ? 0.03 : ( keysPressed[keys.DN] ? -0.03 : 0 );
+        var sy = keysPressed[keys.LT] ? 0.03 : ( keysPressed[keys.RT] ? -0.03 : 0 );
+
+        if( Math.abs( sx ) >= Math.abs( motion.spinning.x ) ) motion.spinning.x = sx;
+        if( Math.abs( sy ) >= Math.abs( motion.spinning.y ) ) motion.spinning.y = sy;
+
+        // move around
+        forward.set( Math.sin( motion.rotation.y ), 0, Math.cos( motion.rotation.y ) );
+        sideways.set( forward.z, 0, -forward.x );
+
+        forward.multiplyScalar( keysPressed[keys.W] ? -0.1 : (keysPressed[keys.S] ? 0.1 : 0));
+        sideways.multiplyScalar( keysPressed[keys.A] ? -0.1 : (keysPressed[keys.D] ? 0.1 : 0));
+
+        var combined = forward.add( sideways );
+        if( Math.abs( combined.x ) >= Math.abs( motion.velocity.x ) ) motion.velocity.x = combined.x;
+        if( Math.abs( combined.y ) >= Math.abs( motion.velocity.y ) ) motion.velocity.y = combined.y;
+        if( Math.abs( combined.z ) >= Math.abs( motion.velocity.z ) ) motion.velocity.z = combined.z;
+
+        //jump
+        var vy = keysPressed[keys.SP] ? 0.7 : 0;
+        motion.velocity.y += vy;
+      }
+    };
+  })();
+
+  var jumpPads = (function() {
+    var pads = [ new THREE.Vector3( -17.5, 8, -10 ), new THREE.Vector3( 17.5, 8, -10 ), new THREE.Vector3( 0, 8, 21 ) ];
+    var temp = new THREE.Vector3();
+
+    return function() {
+      if( !motion.airborne ) {
+        for( var j = 0, n = pads.length; j < n; j++ ) {
+          if ( pads[j].distanceToSquared( motion.position ) < 2.3 ) {
+
+            // calculate velocity towards another side of platform from jump pad position
+            temp.copy( pads[j] ); temp.y = 0; temp.setLength( -0.8 ); temp.y = 0.7;
+
+            motion.airborne = true; motion.velocity.copy( temp ); break;
+          }
+        }
+      }
+    };
+  })();
+
+  var applyPhysics = (function() {
+    var timeStep = 5;
+    var timeLeft = timeStep + 1;
+
+    var birdsEye = 100;
+    var kneeDeep = 0.4;
+
+    var raycaster = new THREE.Raycaster();
+    raycaster.ray.direction.set( 0, -1, 0 );
+
+    var angles = new THREE.Vector2();
+    var displacement = new THREE.Vector3();
+
+    return function( dt ) {
+      var platform = scene.getObjectByName( "platform", true );
+      if( platform ) {
+
+        timeLeft += dt;
+
+        // run several fixed-step iterations to approximate varying-step
+
+        dt = 5;
+        while( timeLeft >= dt ) {
+
+          var time = 0.3, damping = 0.93, gravity = 0.01, tau = 2 * Math.PI;
+
+          raycaster.ray.origin.copy( motion.position );
+          raycaster.ray.origin.y += birdsEye;
+
+          var hits = raycaster.intersectObject( platform );
+
+          motion.airborne = true;
+
+          // are we above, or at most knee deep in, the platform?
+
+          if( ( hits.length > 0 ) && ( hits[0].face.normal.y > 0 ) ) {
+            var actualHeight = hits[0].distance - birdsEye;
+
+            // collision: stick to the surface if landing on it
+
+            if( ( motion.velocity.y <= 0 ) && ( Math.abs( actualHeight ) < kneeDeep ) ) {
+              motion.position.y -= actualHeight;
+              motion.velocity.y = 0;
+              motion.airborne = false;
+            }
+          }
+
+          if( motion.airborne ) motion.velocity.y -= gravity;
+
+          angles.copy( motion.spinning ).multiplyScalar( time );
+          if( !motion.airborne ) motion.spinning.multiplyScalar( damping );
+
+          displacement.copy( motion.velocity ).multiplyScalar( time );
+          if( !motion.airborne ) motion.velocity.multiplyScalar( damping );
+
+          motion.rotation.add( angles );
+          motion.position.add( displacement );
+
+          // limit the tilt at ±0.4 radians
+
+          motion.rotation.x = Math.max( -0.4, Math.min ( +0.4, motion.rotation.x ) );
+
+          // wrap horizontal rotation to 0...2π
+
+          motion.rotation.y += tau; motion.rotation.y %= tau;
+
+          timeLeft -= dt;
+        }
+      }
+    };
+  })();
+
+  var updateCamera = (function() {
+    var euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
+
+    return function() {
+      euler.x = motion.rotation.x;
+      euler.y = motion.rotation.y;
+      camera.quaternion.setFromEuler( euler );
+
+      camera.position.copy( motion.position );
+
+      camera.position.y += 3.0;
+    };
+  })();
+
+
+  // init 3D stuff
+
+  function makeSkybox( urls, size ) {
+    var skyboxCubemap = new THREE.CubeTextureLoader().load( urls );
+    skyboxCubemap.format = THREE.RGBFormat;
+
+    var skyboxShader = THREE.ShaderLib['cube'];
+    skyboxShader.uniforms['tCube'].value = skyboxCubemap;
+
+    return new THREE.Mesh(
+      new THREE.BoxGeometry( size, size, size ),
+      new THREE.ShaderMaterial({
+        fragmentShader : skyboxShader.fragmentShader, vertexShader : skyboxShader.vertexShader,
+        uniforms : skyboxShader.uniforms, depthWrite : false, side : THREE.BackSide
+      })
+    );
+  }
+
+  function makePlatform( jsonUrl, textureUrl, textureQuality ) {
+    var placeholder = new THREE.Object3D();
+
+    var texture = new THREE.TextureLoader().load( textureUrl );
+    texture.minFilter = THREE.LinearFilter;
+    texture.anisotropy = textureQuality;
+
+    var loader = new THREE.JSONLoader();
+    loader.load( jsonUrl, function( geometry ) {
+
+      geometry.computeFaceNormals();
+
+      var platform = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ map : texture }) );
+
+      platform.name = "platform";
+
+      placeholder.add( platform );
+    });
+
+    return placeholder;
+  }
+
+  var renderer = new THREE.WebGLRenderer({ antialias : true });
+  renderer.setPixelRatio( window.devicePixelRatio );
+
+  var camera = new THREE.PerspectiveCamera( 60, 1, 0.1, 9000 );
+
+  var scene = new THREE.Scene();
+
+  scene.add( camera );
+
+  scene.add( makeSkybox( [
+    'assets/textures/skybox/px.jpg', // right
+    'assets/textures/skybox/nx.jpg', // left
+    'assets/textures/skybox/py.jpg', // top
+    'assets/textures/skybox/ny.jpg', // bottom
+    'assets/textures/skybox/pz.jpg', // back
+    'assets/textures/skybox/nz.jpg'  // front
+  ], 8000 ));
+
+  scene.add( makePlatform(
+    'assets/models/platform/platform.json',
+    'assets/models/platform/platform.jpg',
+    renderer.getMaxAnisotropy()
+  ));
+
+
+  // start the game
+
+  var start = function( gameLoop, gameViewportSize ) {
+    var resize = function() {
+      var viewport = gameViewportSize();
+      renderer.setSize( viewport.width, viewport.height );
+      camera.aspect = viewport.width / viewport.height;
+      camera.updateProjectionMatrix();
+    };
+
+    window.addEventListener( 'resize', resize, false );
+    resize();
+
+    var lastTimeStamp;
+    var render = function( timeStamp ) {
+      var timeElapsed = lastTimeStamp ? timeStamp - lastTimeStamp : 0; lastTimeStamp = timeStamp;
+
+      // call our game loop with the time elapsed since last rendering, in ms
+      gameLoop( timeElapsed );
+
+      renderer.render( scene, camera );
+      requestAnimationFrame( render );
+    };
+
+    requestAnimationFrame( render );
+  };
+
+
+  var gameLoop = function( dt ) {
+    resetPlayer();
+    keyboardControls();
+    jumpPads();
+    applyPhysics( dt );
+    updateCamera();
+  };
+
+  var gameViewportSize = function() { return {
+    width: window.innerWidth, height: window.innerHeight
+  }};
+
+  document.getElementById( 'container' ).appendChild( renderer.domElement );
+
+  start( gameLoop, gameViewportSize );
 
 </script>
 

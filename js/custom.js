@@ -22,9 +22,8 @@ function foo(data)
 
 var script = document.createElement('script');
 //script.src = '//example.com/path/to/jsonp?callback=foo'
-script.src = '//lost.dev/js/inventory.js'
+//script.src = '//lost.dev/js/inventory.js'
+script.src = 'https://sjcobb.github.io/lost-woods/js/inventory.js'
 
-//document.getElementsByTagName('head')[0].appendChild(script);
+
 document.head.appendChild(script);
-
-//document.body.appendChild(script);

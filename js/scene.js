@@ -2,8 +2,13 @@
  *** SCENE JS ***
 */
 
-// player motion parameters
+// Create VRControls in addition to FirstPersonVRControls.
+/*var vrControls = new THREE.VRControls(camera);
+var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
+fpVrControls.verticalMovement = true;*/
 
+
+// player motion parameters
 var motion = {
   airborne : false,
   position : new THREE.Vector3(), velocity : new THREE.Vector3(),
@@ -245,6 +250,9 @@ scene.add( makePlatform(
   renderer.getMaxAnisotropy()
 ));
 
+///////////
+// FLAME //
+///////////
 scene.add( fire.mesh );
 fire.mesh.position.set( 0, fireHeight / 2, 0 );
 
@@ -267,6 +275,10 @@ var start = function( gameLoop, gameViewportSize ) {
 
     // call our game loop with the time elapsed since last rendering, in ms
     gameLoop( timeElapsed );
+
+    //vr controls (not working)
+    //vrControls.update();
+    //fpVrControls.update(timeElapsed);
 
     renderer.render( scene, camera );
     requestAnimationFrame( render );

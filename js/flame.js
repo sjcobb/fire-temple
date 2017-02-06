@@ -23,10 +23,11 @@ var axisHelper = new THREE.AxisHelper( 5 );
 scene.add( axisHelper );
 
 
-var fireWidth  = 2;
-var fireHeight = 4;
-var fireDepth  = 2;
-var sliceSpacing = 0.5;
+var fireWidth  = 10;
+var fireHeight = 20;
+var fireDepth  = 10;
+//var sliceSpacing = 0.5;
+var sliceSpacing = 2.0;
 
 var fire = new VolumetricFire(
   fireWidth,

@@ -3,11 +3,37 @@
 */
 
 // Create VRControls in addition to FirstPersonVRControls.
-/*var vrControls = new THREE.VRControls(camera);
+var vrControls = new THREE.VRControls(camera);
 var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
-fpVrControls.verticalMovement = true;*/
+fpVrControls.verticalMovement = true;
+
+// Apply VR stereo rendering to renderer.
+var effect = new THREE.VREffect(renderer);
+effect.setSize(window.innerWidth, window.innerHeight);
 
 
+var vrDisplay;
+function setupStage() {
+  navigator.getVRDisplays().then(function(displays) {
+    if (displays.length > 0) {
+      vrDisplay = displays[0];
+      if (vrDisplay.stageParameters) {
+        setStageDimensions(vrDisplay.stageParameters);
+      }
+      vrDisplay.requestAnimationFrame(animate);
+    }
+  });
+}
+
+// Create a VR manager helper to enter and exit VR mode.
+var params = {
+  hideButton: false, // Default: false.
+  isUndistorted: false // Default: false.
+};
+var manager = new WebVRManager(renderer, effect, params);
+
+
+/* Example Scene Start */
 // player motion parameters
 var motion = {
   airborne : false,
@@ -103,8 +129,9 @@ scene.add( makePlatform(
 scene.add( fire.mesh );
 fire.mesh.position.set( 0, fireHeight / 2, 0 );
 
-// start the game
+setupStage();
 
+// start the game
 var start = function( gameLoop, gameViewportSize ) {
   var resize = function() {
     var viewport = gameViewportSize();
@@ -123,17 +150,12 @@ var start = function( gameLoop, gameViewportSize ) {
     // call our game loop with the time elapsed since last rendering, in ms
     gameLoop( timeElapsed );
 
-    //vr controls (not working)
-    //vrControls.update();
-    //fpVrControls.update(timeElapsed);
-
     renderer.render( scene, camera );
     requestAnimationFrame( render );
   };
 
   requestAnimationFrame( render );
 };
-
 
 var gameLoop = function( dt ) {
   resetPlayer();
@@ -150,3 +172,25 @@ var gameViewportSize = function() { return {
 document.getElementById( 'container' ).appendChild( renderer.domElement );
 
 start( gameLoop, gameViewportSize );
+
+
+
+
+// Request animation frame loop function
+var lastRender = 0;
+function animate(timestamp) {
+  var delta = Math.min(timestamp - lastRender, 500);
+  lastRender = timestamp;
+
+  // Update FirstPersonVRControls after VRControls.
+  // FirstPersonVRControls requires a timestamp.
+  vrControls.update();
+  fpVrControls.update(timestamp);
+
+  //controls.update();
+  // Render the scene through the manager.
+  manager.render(scene, camera, timestamp);
+  effect.render(scene, camera);
+
+  vrDisplay.requestAnimationFrame(animate);
+}

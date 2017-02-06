@@ -7,7 +7,7 @@
 // set path to texture images
 // either relative or absolute path
 //VolumetricFire.texturePath = '../assets/textures/flame/';
-VolumetricFire.texturePath = '/assets/textures/flame/';
+VolumetricFire.texturePath = 'assets/textures/flame/';
 
 var width = window.innerWidth;
 var height = window.innerHeight;

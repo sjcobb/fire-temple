@@ -54,3 +54,11 @@ var keyboardControls = (function() {
     }
   };
 })();
+
+/*** RESET PLAYER ***/
+var resetPlayer = function() {
+  if( motion.position.y < -123 ) {
+    motion.position.set( -2, 7.7, 25 );
+    motion.velocity.multiplyScalar( 0 );
+  }
+};

@@ -245,6 +245,8 @@ scene.add( makePlatform(
   renderer.getMaxAnisotropy()
 ));
 
+scene.add( fire.mesh );
+fire.mesh.position.set( 0, fireHeight / 2, 0 );
 
 // start the game
 

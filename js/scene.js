@@ -2,11 +2,6 @@
  *** SCENE JS ***
 */
 
-// Create VRControls in addition to FirstPersonVRControls.
-var vrControls = new THREE.VRControls(camera);
-var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
-fpVrControls.verticalMovement = true;
-
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
@@ -108,6 +103,11 @@ var scene = new THREE.Scene();
 
 scene.add( camera );
 
+var vrControls = new THREE.VRControls(camera);
+var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
+fpVrControls.verticalMovement = true;
+fpVrControls.movementSpeed = 10;
+
 scene.add( makeSkybox( [
   'assets/textures/skybox/px.jpg', // right
   'assets/textures/skybox/nx.jpg', // left
@@ -126,8 +126,8 @@ scene.add( makePlatform(
 ///////////
 // FLAME //
 ///////////
-scene.add( fire.mesh );
-fire.mesh.position.set( 0, fireHeight / 2, 0 );
+//scene.add( fire.mesh );
+//fire.mesh.position.set( 0, fireHeight / 2, 0 );
 
 setupStage();
 
@@ -150,8 +150,13 @@ var start = function( gameLoop, gameViewportSize ) {
     // call our game loop with the time elapsed since last rendering, in ms
     gameLoop( timeElapsed );
 
+    vrControls.update();
+    fpVrControls.update(timeStamp);
+
     renderer.render( scene, camera );
     requestAnimationFrame( render );
+
+    //vrDisplay.requestAnimationFrame(render);
   };
 
   requestAnimationFrame( render );
@@ -159,10 +164,13 @@ var start = function( gameLoop, gameViewportSize ) {
 
 var gameLoop = function( dt ) {
   resetPlayer();
-  keyboardControls();
+  //keyboardControls();
   jumpPads();
   applyPhysics( dt );
   updateCamera();
+
+  //vrControls.update();
+  //fpVrControls.update(dt);
 };
 
 var gameViewportSize = function() { return {
@@ -177,7 +185,7 @@ start( gameLoop, gameViewportSize );
 
 
 // Request animation frame loop function
-var lastRender = 0;
+/*var lastRender = 0;
 function animate(timestamp) {
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
@@ -193,4 +201,4 @@ function animate(timestamp) {
   effect.render(scene, camera);
 
   vrDisplay.requestAnimationFrame(animate);
-}
+}*/

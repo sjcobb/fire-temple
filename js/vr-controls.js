@@ -40,7 +40,7 @@ THREE.FirstPersonVRControls = function ( camera, scene ) {
     switch ( event.keyCode ) {
 
       case 38: /*up*/
-      case 87: /*W*/ this.moveForward = true; break;
+      case 87: /*W*/ this.moveForward = true; console.log("w pressed"); break;
 
       case 37: /*left*/
       case 65: /*A*/ this.moveLeft = true; break;

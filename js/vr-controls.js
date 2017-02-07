@@ -35,6 +35,30 @@ THREE.FirstPersonVRControls = function ( camera, scene ) {
     }.bind(this));
   }
 
+  this.onMouseDown = function ( event ) {
+    //console.log("mouse down");
+    //checkWoods(this);
+    this.moveForward = true;
+  }
+
+  this.onMouseUp = function ( event ) {
+    //console.log("mouse up");
+    //checkWoods(this);
+    this.moveForward = false;
+  }
+
+  this.onTouchStart = function ( event ) {
+    //console.log("touch start");
+    //checkWoods(this);
+    this.moveForward = true;
+  }
+
+  this.onTouchEnd = function ( event ) {
+    //console.log("touch end");
+    //checkWoods(this);
+    this.moveForward = false;
+  }
+
   this.onKeyDown = function ( event ) {
 
     switch ( event.keyCode ) {
@@ -141,7 +165,18 @@ THREE.FirstPersonVRControls = function ( camera, scene ) {
   var _onKeyDown = this.onKeyDown.bind(this);
   var _onKeyUp = this.onKeyUp.bind(this);
 
+  var _onMouseDown = this.onMouseDown.bind(this);
+  var _onMouseUp = this.onMouseUp.bind(this);
+
+  var _onTouchStart = this.onTouchStart.bind(this);
+  var _onTouchEnd = this.onTouchEnd.bind(this);
+
   window.addEventListener( 'keydown', _onKeyDown, false );
   window.addEventListener( 'keyup', _onKeyUp, false );
 
+  window.addEventListener( 'mousedown', _onMouseDown, false );
+  window.addEventListener( 'mouseup', _onMouseUp, false );
+
+  window.addEventListener( 'touchstart', _onTouchStart, false );
+  window.addEventListener( 'touchend', _onTouchEnd, false );
 };

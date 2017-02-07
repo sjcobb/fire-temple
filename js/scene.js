@@ -16,6 +16,7 @@ function setupStage() {
         setStageDimensions(vrDisplay.stageParameters);
       }
       vrDisplay.requestAnimationFrame(animate);
+      //vrDisplay.requestAnimationFrame(render);
     }
   });
 }
@@ -97,7 +98,9 @@ function makePlatform( jsonUrl, textureUrl, textureQuality ) {
 var renderer = new THREE.WebGLRenderer({ antialias : true });
 renderer.setPixelRatio( window.devicePixelRatio );
 
+//var camera = new THREE.PerspectiveCamera( 60, 1, 0.1, 9000 );
 var camera = new THREE.PerspectiveCamera( 60, 1, 0.1, 9000 );
+//var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 
 var scene = new THREE.Scene();
 
@@ -107,6 +110,7 @@ var vrControls = new THREE.VRControls(camera);
 var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
 fpVrControls.verticalMovement = true;
 fpVrControls.movementSpeed = 10;
+vrControls.standing = true;
 
 scene.add( makeSkybox( [
   'assets/textures/skybox/px.jpg', // right
@@ -180,25 +184,3 @@ var gameViewportSize = function() { return {
 document.getElementById( 'container' ).appendChild( renderer.domElement );
 
 start( gameLoop, gameViewportSize );
-
-
-
-
-// Request animation frame loop function
-/*var lastRender = 0;
-function animate(timestamp) {
-  var delta = Math.min(timestamp - lastRender, 500);
-  lastRender = timestamp;
-
-  // Update FirstPersonVRControls after VRControls.
-  // FirstPersonVRControls requires a timestamp.
-  vrControls.update();
-  fpVrControls.update(timestamp);
-
-  //controls.update();
-  // Render the scene through the manager.
-  manager.render(scene, camera, timestamp);
-  effect.render(scene, camera);
-
-  vrDisplay.requestAnimationFrame(animate);
-}*/

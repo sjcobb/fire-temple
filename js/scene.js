@@ -24,7 +24,7 @@ controls.standing = true; //raise user above ground
 var vrControls = new THREE.VRControls(camera);
 //vrControls.standing = true;
 var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
-//fpVrControls.verticalMovement = true;
+fpVrControls.verticalMovement = true;
 fpVrControls.movementSpeed = 10;
 
 // Apply VR stereo rendering to renderer.
@@ -82,16 +82,24 @@ var wallTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/wall.png' )
 wallTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
 wallTexture.repeat.set( 1, 1 );
 var wallMaterial = new THREE.MeshBasicMaterial( { map: wallTexture, side: THREE.DoubleSide } );
-var wallGeometry = new THREE.PlaneGeometry(60, 40, 1, 1); // e/w, n/s
+var wallGeometry = new THREE.PlaneGeometry(100, 40, 1, 1); // e/w, n/s
+
+var brickTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/brick-wall.jpg' );
+brickTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+brickTexture.repeat.set( 1, 1 );
+var brickMaterial = new THREE.MeshBasicMaterial( { map: brickTexture, side: THREE.DoubleSide } );
+var brickGeometry = new THREE.PlaneGeometry(80, 50, 1, 1);
+
 var wall1 = new THREE.Mesh(wallGeometry, wallMaterial);
 var wall2 = new THREE.Mesh(wallGeometry, wallMaterial);
-var wall3 = new THREE.Mesh(wallGeometry, wallMaterial);
-var wall4 = new THREE.Mesh(wallGeometry, wallMaterial);
+var wall3 = new THREE.Mesh(brickGeometry, brickMaterial);
+var wall4 = new THREE.Mesh(brickGeometry, brickMaterial);
+var wall5 = new THREE.Mesh(brickGeometry, brickMaterial);
 //floor.position.y = -0.5;
 
 /* Front Wall */
 wall1.position.x = 0;
-wall1.position.y = wall_y_pos;
+wall1.position.y = wall_y_pos; //up down
 wall1.position.z = -15; //further away
 var wall_rotation = 0.01;
 //wall1.rotation.x = wall_rotation;
@@ -100,22 +108,19 @@ var wall_rotation = 0.01;
 /* Back Wall */
 wall2.position.x = 0;
 wall2.position.y = wall_y_pos;
-wall2.position.z = 15; //further away
+wall2.position.z = 15;
 scene.add(wall2);
 
 /* Left Side Wall */
-wall3.position.x = -15;
-wall3.position.y = wall_y_pos;
-wall3.position.z = 0; //further away
+wall3.position.set(-30, 5, 0);
 wall3.rotation.y = Math.PI / 2;
-//scene.add(wall3);
+scene.add(wall3);
 
 /* Right Side Wall */
-wall4.position.x = 15;
-wall4.position.y = wall_y_pos;
-wall4.position.z = 0; //further away
+wall4.position.set(30, 5, 0);
 wall4.rotation.y = Math.PI / 2;
-//scene.add(wall4);
+scene.add(wall4);
+console.log(wall4);
 
 // Create a VR manager helper to enter and exit VR mode.
 var params = {
@@ -145,11 +150,12 @@ var fireDepth  = 15;
 var sliceSpacing = 1.0;
 
 var fire = new VolumetricFire( fireWidth, fireHeight, fireDepth, sliceSpacing, camera );
+//var fire2 = new VolumetricFire( 130, 50, 10, 2.0, camera );
 var fire2 = new VolumetricFire( 130, 20, 10, 2.0, camera );
 
 //fire.mesh.position.set( 0, fireHeight / 2, 0 );
 fire.mesh.position.set(0, 10, -20); //left-right, top-down, forward-back
-fire2.mesh.position.set(0, 1, -35); //left-right, top-down, forward-back
+fire2.mesh.position.set(0, 5, -35);
 scene.add( fire.mesh );
 scene.add( fire2.mesh );
 

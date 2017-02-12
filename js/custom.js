@@ -20,10 +20,9 @@ function foo(data)
     // do stuff with JSON
 }
 
-var script = document.createElement('script');
+//var script = document.createElement('script');
 //script.src = '//example.com/path/to/jsonp?callback=foo'
-//script.src = '//lost.dev/js/inventory.js'
-script.src = '//lost-woods.com/js/inventory.js'
+//script.src = '//lost-woods.com/js/inventory.js'
 
 
-document.head.appendChild(script);
+//document.head.appendChild(script);

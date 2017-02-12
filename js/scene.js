@@ -38,7 +38,7 @@ var motion = {
 };
 
 motion.position.y = -150;
-
+console.log(motion);
 
 var updateCamera = (function() {
   var euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
@@ -130,8 +130,8 @@ scene.add( makePlatform(
 ///////////
 // FLAME //
 ///////////
-//scene.add( fire.mesh );
-//fire.mesh.position.set( 0, fireHeight / 2, 0 );
+scene.add( fire.mesh );
+fire.mesh.position.set( 0, fireHeight / 2, 0 );
 
 setupStage();
 

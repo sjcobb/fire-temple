@@ -11,7 +11,7 @@ function checkWoods(object) {
     }
   }
   if (camera.position.x < -12) { //left
-    w
+    
   }
   if (camera.position.x > 12) { //right
     

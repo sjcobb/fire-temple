@@ -62,11 +62,12 @@ function onTextureLoaded(texture) {
 ///////////
 // FLOOR //
 ///////////
-var floorTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/ground.png' );
+//var floorTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/ground.png' );
+var floorTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/cracks.jpg' );
 floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
 floorTexture.repeat.set( 1, 1 );
 var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-var floorGeometry = new THREE.PlaneGeometry(60, 40, 1, 1); // e/w, n/s
+var floorGeometry = new THREE.PlaneGeometry(60, 100, 1, 1); // e/w, n/s
 var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 //floor.position.y = -0.5;
 floor.position.y = -4.8; //lower = floor lowers
@@ -137,23 +138,20 @@ sign.position.set(-4.75, 0.25, -4.75); //left-right, top-down, forward-back
 
 /*** FLAME ***/
 VolumetricFire.texturePath = '/fire-temple/assets/textures/flame/';
-
 var fireWidth  = 15;
 var fireHeight = 30;
-var fireDepth  = 10;
-var sliceSpacing = 0.5;
+var fireDepth  = 15;
+//var sliceSpacing = 0.5;
+var sliceSpacing = 1.0;
 
-var fire = new VolumetricFire(
-  fireWidth,
-  fireHeight,
-  fireDepth,
-  sliceSpacing,
-  camera
-);
-scene.add( fire.mesh );
+var fire = new VolumetricFire( fireWidth, fireHeight, fireDepth, sliceSpacing, camera );
+var fire2 = new VolumetricFire( 130, 20, 10, 2.0, camera );
+
 //fire.mesh.position.set( 0, fireHeight / 2, 0 );
-//fire.mesh.position.set(0, 5, -20); //left-right, top-down, forward-back
 fire.mesh.position.set(0, 10, -20); //left-right, top-down, forward-back
+fire2.mesh.position.set(0, 1, -35); //left-right, top-down, forward-back
+scene.add( fire.mesh );
+scene.add( fire2.mesh );
 
 ///////////
 // SOUND //
@@ -191,9 +189,7 @@ function animate(timestamp) {
   lastRender = timestamp;
 
   var elapsed = clock.getElapsedTime();
-  fire.update( elapsed );
-  cube.rotation.y += delta * 0.0006;
-
+  
   controls.update();
   vrControls.update();
   fpVrControls.update(timestamp);
@@ -202,6 +198,12 @@ function animate(timestamp) {
   effect.render(scene, camera);
 
   vrDisplay.requestAnimationFrame(animate);
+
+  fire.update( elapsed );
+  fire.mesh.rotation.y += delta * 0.0006;
+  fire2.update( elapsed );
+  //fire2.mesh.rotation.x += delta * 0.0006;
+  mesh1.rotation.y += delta * 0.0006;
 }
 
 function onResize(e) {
@@ -238,6 +240,5 @@ function setStageDimensions(stage) {
   skybox.position.y = boxSize/2;
   scene.add(skybox);
 
-  // Place the cube in the middle of the scene, at user height.
-  cube.position.set(0, controls.userHeight, 0);
+  //scene.add( fire.mesh );
 }

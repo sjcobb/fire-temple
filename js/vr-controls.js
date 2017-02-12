@@ -37,30 +37,32 @@ THREE.FirstPersonVRControls = function ( camera, scene ) {
 
   this.onMouseDown = function ( event ) {
     //console.log("mouse down");
-    //checkWoods(this);
+    checkWoods(this);
     this.moveForward = true;
   }
 
   this.onMouseUp = function ( event ) {
     //console.log("mouse up");
-    //checkWoods(this);
+    checkWoods(this);
     this.moveForward = false;
   }
 
   this.onTouchStart = function ( event ) {
     //console.log("touch start");
-    //checkWoods(this);
+    checkWoods(this);
     this.moveForward = true;
   }
 
   this.onTouchEnd = function ( event ) {
     //console.log("touch end");
-    //checkWoods(this);
+    checkWoods(this);
     this.moveForward = false;
   }
 
   this.onKeyDown = function ( event ) {
 
+    checkWoods(this);
+    
     switch ( event.keyCode ) {
 
       case 38: /*up*/

@@ -1,25 +1,120 @@
 /*
- *** SCENE JS ***
+ *** CUSTOM JS ***
 */
+
+// Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
+// Only enable it if you actually need to.
+var renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.setPixelRatio(window.devicePixelRatio);
+
+// Append the canvas element created by the renderer to document body element.
+document.body.appendChild(renderer.domElement);
+
+var clock = new THREE.Clock();
+var scene = new THREE.Scene();
+
+// Create a three.js camera.
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+
+var controls = new THREE.VRControls(camera);
+controls.standing = true; //raise user above ground
+
+/*** VR Controls ***/
+// Create VRControls in addition to FirstPersonVRControls.
+var vrControls = new THREE.VRControls(camera);
+//vrControls.standing = true;
+var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
+//fpVrControls.verticalMovement = true;
+fpVrControls.movementSpeed = 10;
 
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
 
 
-var vrDisplay;
-function setupStage() {
-  navigator.getVRDisplays().then(function(displays) {
-    if (displays.length > 0) {
-      vrDisplay = displays[0];
-      if (vrDisplay.stageParameters) {
-        setStageDimensions(vrDisplay.stageParameters);
-      }
-      vrDisplay.requestAnimationFrame(animate);
-      //vrDisplay.requestAnimationFrame(render);
-    }
+// Add a repeating grid as a skybox.
+var boxSize = 40;
+var loader = new THREE.TextureLoader();
+loader.load('img/box.png', onTextureLoaded);
+var dirt_texture = new THREE.TextureLoader().load( "assets/textures/dirt.png" );
+
+function onTextureLoaded(texture) {
+
+  var geometry = new THREE.BoxGeometry(boxSize, boxSize, boxSize);
+  var material = new THREE.MeshBasicMaterial({
+    map: dirt_texture,
+    //map: texture,
+    color: 0x01BE00,
+    //side: THREE.BackSide //inside 
+    //side: THREE.FrontSide //outside
+    side: THREE.DoubleSide //both
   });
+
+  // Align the skybox to the floor (which is at y=0).
+  skybox = new THREE.Mesh(geometry, material);
+  //skybox.position.y = boxSize/2;
+  skybox.position.y = 2.5; //grid box way above
+  //scene.add(skybox);
+
+  setupStage(); // For high end VR devices like Vive and Oculus, take into account the stage parameters provided.
 }
+
+///////////
+// FLOOR //
+///////////
+var floorTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/ground.png' );
+floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+floorTexture.repeat.set( 1, 1 );
+var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+var floorGeometry = new THREE.PlaneGeometry(60, 40, 1, 1); // e/w, n/s
+var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+//floor.position.y = -0.5;
+floor.position.y = -4.8; //lower = floor lowers
+floor.rotation.x = Math.PI / 2; // 1.57
+scene.add(floor);
+
+///////////
+// WALL //
+///////////
+var wall_y_pos = -2.3;
+var wallTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/wall.png' );
+wallTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+wallTexture.repeat.set( 1, 1 );
+var wallMaterial = new THREE.MeshBasicMaterial( { map: wallTexture, side: THREE.DoubleSide } );
+var wallGeometry = new THREE.PlaneGeometry(60, 40, 1, 1); // e/w, n/s
+var wall1 = new THREE.Mesh(wallGeometry, wallMaterial);
+var wall2 = new THREE.Mesh(wallGeometry, wallMaterial);
+var wall3 = new THREE.Mesh(wallGeometry, wallMaterial);
+var wall4 = new THREE.Mesh(wallGeometry, wallMaterial);
+//floor.position.y = -0.5;
+
+/* Front Wall */
+wall1.position.x = 0;
+wall1.position.y = wall_y_pos;
+wall1.position.z = -15; //further away
+var wall_rotation = 0.01;
+//wall1.rotation.x = wall_rotation;
+//scene.add(wall1);
+
+/* Back Wall */
+wall2.position.x = 0;
+wall2.position.y = wall_y_pos;
+wall2.position.z = 15; //further away
+scene.add(wall2);
+
+/* Left Side Wall */
+wall3.position.x = -15;
+wall3.position.y = wall_y_pos;
+wall3.position.z = 0; //further away
+wall3.rotation.y = Math.PI / 2;
+//scene.add(wall3);
+
+/* Right Side Wall */
+wall4.position.x = 15;
+wall4.position.y = wall_y_pos;
+wall4.position.z = 0; //further away
+wall4.rotation.y = Math.PI / 2;
+//scene.add(wall4);
 
 // Create a VR manager helper to enter and exit VR mode.
 var params = {
@@ -28,159 +123,121 @@ var params = {
 };
 var manager = new WebVRManager(renderer, effect, params);
 
+/////////////
+// OBJECTS //
+/////////////
+// Create 3D objects.
+var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+var material = new THREE.MeshNormalMaterial();
+var cube = new THREE.Mesh(geometry, material);
+var sign = new THREE.Mesh(geometry, material);
+//cube.position.set(0, controls.userHeight, -1);
+cube.position.set(0, 3.5, -1); //move cube higher
+sign.position.set(-4.75, 0.25, -4.75); //left-right, top-down, forward-back
 
-/* Example Scene Start */
-// player motion parameters
-var motion = {
-  airborne : false,
-  position : new THREE.Vector3(), velocity : new THREE.Vector3(),
-  rotation : new THREE.Vector2(), spinning : new THREE.Vector2()
-};
+/*** FLAME ***/
+VolumetricFire.texturePath = '/fire-temple/assets/textures/flame/';
 
-motion.position.y = -150;
-console.log(motion);
+var fireWidth  = 15;
+var fireHeight = 30;
+var fireDepth  = 10;
+var sliceSpacing = 0.5;
 
-var updateCamera = (function() {
-  var euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
-
-  return function() {
-    euler.x = motion.rotation.x;
-    euler.y = motion.rotation.y;
-    camera.quaternion.setFromEuler( euler );
-
-    camera.position.copy( motion.position );
-
-    camera.position.y += 3.0;
-  };
-})();
-
-
-// init 3D stuff
-
-function makeSkybox( urls, size ) {
-  var skyboxCubemap = new THREE.CubeTextureLoader().load( urls );
-  skyboxCubemap.format = THREE.RGBFormat;
-
-  var skyboxShader = THREE.ShaderLib['cube'];
-  skyboxShader.uniforms['tCube'].value = skyboxCubemap;
-
-  return new THREE.Mesh(
-    new THREE.BoxGeometry( size, size, size ),
-    new THREE.ShaderMaterial({
-      fragmentShader : skyboxShader.fragmentShader, vertexShader : skyboxShader.vertexShader,
-      uniforms : skyboxShader.uniforms, depthWrite : false, side : THREE.BackSide
-    })
-  );
-}
-
-function makePlatform( jsonUrl, textureUrl, textureQuality ) {
-  var placeholder = new THREE.Object3D();
-
-  var texture = new THREE.TextureLoader().load( textureUrl );
-  texture.minFilter = THREE.LinearFilter;
-  texture.anisotropy = textureQuality;
-
-  var loader = new THREE.JSONLoader();
-  loader.load( jsonUrl, function( geometry ) {
-
-    geometry.computeFaceNormals();
-
-    var platform = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ map : texture }) );
-
-    platform.name = "platform";
-
-    placeholder.add( platform );
-  });
-
-  return placeholder;
-}
-
-var renderer = new THREE.WebGLRenderer({ antialias : true });
-renderer.setPixelRatio( window.devicePixelRatio );
-
-//var camera = new THREE.PerspectiveCamera( 60, 1, 0.1, 9000 );
-var camera = new THREE.PerspectiveCamera( 60, 1, 0.1, 9000 );
-//var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-
-var scene = new THREE.Scene();
-
-scene.add( camera );
-
-var vrControls = new THREE.VRControls(camera);
-var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
-fpVrControls.verticalMovement = true;
-fpVrControls.movementSpeed = 10;
-vrControls.standing = true;
-
-scene.add( makeSkybox( [
-  'assets/textures/skybox/px.jpg', // right
-  'assets/textures/skybox/nx.jpg', // left
-  'assets/textures/skybox/py.jpg', // top
-  'assets/textures/skybox/ny.jpg', // bottom
-  'assets/textures/skybox/pz.jpg', // back
-  'assets/textures/skybox/nz.jpg'  // front
-], 8000 ));
-
-scene.add( makePlatform(
-  'assets/models/platform/platform.json',
-  'assets/models/platform/platform.jpg',
-  renderer.getMaxAnisotropy()
-));
-
-///////////
-// FLAME //
-///////////
+var fire = new VolumetricFire(
+  fireWidth,
+  fireHeight,
+  fireDepth,
+  sliceSpacing,
+  camera
+);
 scene.add( fire.mesh );
-fire.mesh.position.set( 0, fireHeight / 2, 0 );
+//fire.mesh.position.set( 0, fireHeight / 2, 0 );
+//fire.mesh.position.set(0, 5, -20); //left-right, top-down, forward-back
+fire.mesh.position.set(0, 10, -20); //left-right, top-down, forward-back
 
-setupStage();
+///////////
+// SOUND //
+///////////
+var listener = new THREE.AudioListener();
+camera.add( listener );
 
-// start the game
-var start = function( gameLoop, gameViewportSize ) {
-  var resize = function() {
-    var viewport = gameViewportSize();
-    renderer.setSize( viewport.width, viewport.height );
-    camera.aspect = viewport.width / viewport.height;
-    camera.updateProjectionMatrix();
-  };
+// sound spheres
+var sphere = new THREE.SphereGeometry( 2.5, 4, 2 );
+material_sphere1 = new THREE.MeshPhongMaterial( { color: 0xffaa00, shading: THREE.FlatShading, shininess: 0 } );
 
-  window.addEventListener( 'resize', resize, false );
-  resize();
+var audioLoader = new THREE.AudioLoader();
 
-  var lastTimeStamp;
-  var render = function( timeStamp ) {
-    var timeElapsed = lastTimeStamp ? timeStamp - lastTimeStamp : 0; lastTimeStamp = timeStamp;
+var mesh1 = new THREE.Mesh( sphere, material_sphere1 );
+mesh1.position.set(0, 2.5, -20);
+scene.add( mesh1 );
+var sound1 = new THREE.PositionalAudio( listener );
+//audioLoader.load( 'assets/sounds/bolero-of-fire.mp3', function( buffer ) {
+audioLoader.load( 'assets/sounds/fire-temple.mp3', function( buffer ) {
+  sound1.setBuffer( buffer );
+  sound1.setRefDistance( 0.03 );
+  sound1.setVolume(100);
+  sound1.setLoop(true);
+  sound1.play();
+});
+mesh1.add( sound1 );
 
-    // call our game loop with the time elapsed since last rendering, in ms
-    gameLoop( timeElapsed );
+window.addEventListener('resize', onResize, true);
+window.addEventListener('vrdisplaypresentchange', onResize, true);
 
-    vrControls.update();
-    fpVrControls.update(timeStamp);
+// Request animation frame loop function
+var lastRender = 0;
+function animate(timestamp) {
+  var delta = Math.min(timestamp - lastRender, 500);
+  lastRender = timestamp;
 
-    renderer.render( scene, camera );
-    requestAnimationFrame( render );
+  var elapsed = clock.getElapsedTime();
+  fire.update( elapsed );
+  cube.rotation.y += delta * 0.0006;
 
-    //vrDisplay.requestAnimationFrame(render);
-  };
+  controls.update();
+  vrControls.update();
+  fpVrControls.update(timestamp);
 
-  requestAnimationFrame( render );
-};
+  manager.render(scene, camera, timestamp);
+  effect.render(scene, camera);
 
-var gameLoop = function( dt ) {
-  resetPlayer();
-  //keyboardControls();
-  jumpPads();
-  applyPhysics( dt );
-  updateCamera();
+  vrDisplay.requestAnimationFrame(animate);
+}
 
-  //vrControls.update();
-  //fpVrControls.update(dt);
-};
+function onResize(e) {
+  effect.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+}
 
-var gameViewportSize = function() { return {
-  width: window.innerWidth, height: window.innerHeight
-}};
+var vrDisplay;
 
-document.getElementById( 'container' ).appendChild( renderer.domElement );
+// Get the HMD, and if we're dealing with something that specifies stageParameters, rearrange the scene.
+function setupStage() {
+  navigator.getVRDisplays().then(function(displays) {
+    if (displays.length > 0) {
+      vrDisplay = displays[0];
+      if (vrDisplay.stageParameters) {
+        setStageDimensions(vrDisplay.stageParameters);
+      }
+      vrDisplay.requestAnimationFrame(animate);
+    }
+  });
+}
 
-start( gameLoop, gameViewportSize );
+function setStageDimensions(stage) {
+  // Make the skybox fit the stage.
+  var material = skybox.material;
+  scene.remove(skybox);
+
+  // Size the skybox according to the size of the actual stage.
+  var geometry = new THREE.BoxGeometry(stage.sizeX, boxSize, stage.sizeZ);
+  skybox = new THREE.Mesh(geometry, material);
+
+  // Place it on the floor.
+  skybox.position.y = boxSize/2;
+  scene.add(skybox);
+
+  // Place the cube in the middle of the scene, at user height.
+  cube.position.set(0, controls.userHeight, 0);
+}

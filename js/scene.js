@@ -69,8 +69,8 @@ floorTexture.repeat.set( 1, 1 );
 var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
 var floorGeometry = new THREE.PlaneGeometry(60, 100, 1, 1); // e/w, n/s
 var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-//floor.position.y = -0.5;
-floor.position.y = -4.8; //lower = floor lowers
+//floor.position.y = -4.8; //lower = floor lowers
+floor.position.y = -6;
 floor.rotation.x = Math.PI / 2; // 1.57
 scene.add(floor);
 
@@ -120,7 +120,7 @@ scene.add(wall3);
 wall4.position.set(30, 5, 0);
 wall4.rotation.y = Math.PI / 2;
 scene.add(wall4);
-console.log(wall4);
+//console.log(wall4);
 
 // Create a VR manager helper to enter and exit VR mode.
 var params = {

@@ -159,6 +159,17 @@ fire2.mesh.position.set(0, 5, -35);
 scene.add( fire.mesh );
 scene.add( fire2.mesh );
 
+///////////////////
+// LIGHT  //
+///////////////////
+var ambient = new THREE.AmbientLight( 0x444444 );
+//var ambient = new THREE.AmbientLight( 0x101030 );
+scene.add( ambient );
+
+var directionalLight = new THREE.DirectionalLight( 0xffeedd );
+directionalLight.position.set( 0, 0, 1 ).normalize();
+scene.add( directionalLight );
+
 ///////////
 // SOUND //
 ///////////
@@ -167,7 +178,7 @@ camera.add( listener );
 
 // sound spheres
 var sphere = new THREE.SphereGeometry( 2.5, 4, 2 );
-material_sphere1 = new THREE.MeshPhongMaterial( { color: 0xffaa00, shading: THREE.FlatShading, shininess: 0 } );
+material_sphere1 = new THREE.MeshPhongMaterial( { color: 0xB22222, shading: THREE.FlatShading, shininess: 0 } );
 
 var audioLoader = new THREE.AudioLoader();
 

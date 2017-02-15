@@ -1,5 +1,5 @@
 /*
- *** CUSTOM JS ***
+ *** SCENE JS ***
 */
 
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
@@ -59,20 +59,28 @@ function onTextureLoaded(texture) {
   setupStage(); // For high end VR devices like Vive and Oculus, take into account the stage parameters provided.
 }
 
-///////////
-// FLOOR //
-///////////
-//var floorTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/ground.png' );
+//////////////////////
+// FLOOR / CEILING //
+//////////////////////
 var floorTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/cracks.jpg' );
 floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
 floorTexture.repeat.set( 1, 1 );
 var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
 var floorGeometry = new THREE.PlaneGeometry(60, 100, 1, 1); // e/w, n/s
 var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-//floor.position.y = -4.8; //lower = floor lowers
-floor.position.y = -6;
+floor.position.y = -6; //lower = floor lowers
 floor.rotation.x = Math.PI / 2; // 1.57
 scene.add(floor);
+
+var ceilingTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/brick-wall.jpg' );
+ceilingTexture.wrapS = ceilingTexture.wrapT = THREE.RepeatWrapping; 
+ceilingTexture.repeat.set( 1, 1 );
+var ceilingMaterial = new THREE.MeshBasicMaterial( { map: ceilingTexture, side: THREE.DoubleSide } );
+var ceilingGeometry = new THREE.PlaneGeometry(60, 100, 1, 1); // e/w, n/s
+var ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+ceiling.position.y = 18; //lower = floor lowers
+ceiling.rotation.x = Math.PI / 2; // 1.57
+scene.add(ceiling);
 
 ///////////
 // WALL //

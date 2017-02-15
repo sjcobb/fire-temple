@@ -1,5 +1,5 @@
 /*
- *** SCENE JS ***
+ *** OLD SCENE JS ***
 */
 
 // Apply VR stereo rendering to renderer.

@@ -50,7 +50,8 @@ THREE.VRControls = function ( object, onError ) {
 
 	// Distance from the users eyes to the floor in meters. Used when
 	// standing=true but the VRDisplay doesn't provide stageParameters.
-	this.userHeight = 1.6;
+	//this.userHeight = 1.6;
+	this.userHeight = 25.6;
 
 	this.getVRDisplay = function () {
 

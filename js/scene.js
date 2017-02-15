@@ -24,13 +24,20 @@ controls.standing = true; //raise user above ground
 var vrControls = new THREE.VRControls(camera);
 //vrControls.standing = true;
 var fpVrControls = new THREE.FirstPersonVRControls(camera, scene);
-fpVrControls.verticalMovement = true;
-fpVrControls.movementSpeed = 10;
+//fpVrControls.verticalMovement = true;
+fpVrControls.movementSpeed = 20;
+//fpVrControls.movementSpeed = 50; //for testing
 
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
 
+// Create a VR manager helper to enter and exit VR mode.
+var params = {
+  hideButton: false, // Default: false.
+  isUndistorted: false // Default: false.
+};
+var manager = new WebVRManager(renderer, effect, params);
 
 // Add a repeating grid as a skybox.
 var boxSize = 40;
@@ -59,83 +66,85 @@ function onTextureLoaded(texture) {
   setupStage(); // For high end VR devices like Vive and Oculus, take into account the stage parameters provided.
 }
 
-//////////////////////
+/////////////////////
 // FLOOR / CEILING //
-//////////////////////
+/////////////////////
 var floorTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/cracks.jpg' );
 floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-floorTexture.repeat.set( 1, 1 );
+floorTexture.repeat.set( 10, 10 );
 var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-var floorGeometry = new THREE.PlaneGeometry(60, 100, 1, 1); // e/w, n/s
+var floorGeometry = new THREE.PlaneGeometry(650, 500, 50, 50); // e/w, n/s
 var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-floor.position.y = -6; //lower = floor lowers
+floor.position.set(0, -6, -200);
+//floor.position.y = -6; //lower = floor lowers
 floor.rotation.x = Math.PI / 2; // 1.57
 scene.add(floor);
 
 var ceilingTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/brick-wall.jpg' );
 ceilingTexture.wrapS = ceilingTexture.wrapT = THREE.RepeatWrapping; 
-ceilingTexture.repeat.set( 1, 1 );
+ceilingTexture.repeat.set( 10, 10 );
 var ceilingMaterial = new THREE.MeshBasicMaterial( { map: ceilingTexture, side: THREE.DoubleSide } );
 var ceilingGeometry = new THREE.PlaneGeometry(60, 100, 1, 1); // e/w, n/s
-var ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+var ceiling = new THREE.Mesh(floorGeometry, ceilingMaterial);
 ceiling.position.y = 18; //lower = floor lowers
 ceiling.rotation.x = Math.PI / 2; // 1.57
 scene.add(ceiling);
 
-///////////
-// WALL //
+////////////
+// WALLS //
 ///////////
 var wall_y_pos = -2.3;
-var wallTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/wall.png' );
-wallTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-wallTexture.repeat.set( 1, 1 );
-var wallMaterial = new THREE.MeshBasicMaterial( { map: wallTexture, side: THREE.DoubleSide } );
-var wallGeometry = new THREE.PlaneGeometry(100, 40, 1, 1); // e/w, n/s
+var woodsTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/woods-wall.png' );
+woodsTexture.wrapS = woodsTexture.wrapT = THREE.RepeatWrapping; 
+woodsTexture.repeat.set( 1, 1 );
+var woodsMaterial = new THREE.MeshBasicMaterial( { map: woodsTexture, side: THREE.DoubleSide } );
+var woodsGeometry = new THREE.PlaneGeometry(100, 40, 1, 1); // e/w, n/s
 
+var brick_length = 300;
 var brickTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/brick-wall.jpg' );
-brickTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-brickTexture.repeat.set( 1, 1 );
+brickTexture.wrapS = brickTexture.wrapT = THREE.RepeatWrapping; 
+brickTexture.repeat.set( 5, 1 );
 var brickMaterial = new THREE.MeshBasicMaterial( { map: brickTexture, side: THREE.DoubleSide } );
-var brickGeometry = new THREE.PlaneGeometry(80, 50, 1, 1);
+var brickGeometry = new THREE.PlaneGeometry(brick_length, 50, 15, 15);
 
-var wall1 = new THREE.Mesh(wallGeometry, wallMaterial);
-var wall2 = new THREE.Mesh(wallGeometry, wallMaterial);
+var brickLongTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/brick-wall.jpg' );
+brickLongTexture.wrapS = brickLongTexture.wrapT = THREE.RepeatWrapping; 
+brickLongTexture.repeat.set( 10, 1 );
+var brickLongMaterial = new THREE.MeshBasicMaterial( { map: brickLongTexture, side: THREE.DoubleSide } );
+var brickLongGeometry = new THREE.PlaneGeometry(brick_length*2+60, 50, 15, 15);
+
+var wall1 = new THREE.Mesh(brickLongGeometry, brickLongMaterial);
+var wall2 = new THREE.Mesh(woodsGeometry, woodsMaterial);
 var wall3 = new THREE.Mesh(brickGeometry, brickMaterial);
 var wall4 = new THREE.Mesh(brickGeometry, brickMaterial);
 var wall5 = new THREE.Mesh(brickGeometry, brickMaterial);
-//floor.position.y = -0.5;
+var wall6 = new THREE.Mesh(brickGeometry, brickMaterial);
 
-/* Front Wall */
-wall1.position.x = 0;
-wall1.position.y = wall_y_pos; //up down
-wall1.position.z = -15; //further away
-var wall_rotation = 0.01;
-//wall1.rotation.x = wall_rotation;
-//scene.add(wall1);
+/* back wall */
+wall1.position.set(0, wall_y_pos, -200);
+scene.add(wall1);
 
-/* Back Wall */
-wall2.position.x = 0;
-wall2.position.y = wall_y_pos;
-wall2.position.z = 15;
+/* front wall */
+wall2.position.set(0, wall_y_pos, 15);
 scene.add(wall2);
 
-/* Left Side Wall */
+/* left side wall */
 wall3.position.set(-30, 5, 0);
 wall3.rotation.y = Math.PI / 2;
 scene.add(wall3);
 
-/* Right Side Wall */
+/* right side wall */
 wall4.position.set(30, 5, 0);
 wall4.rotation.y = Math.PI / 2;
 scene.add(wall4);
-//console.log(wall4);
 
-// Create a VR manager helper to enter and exit VR mode.
-var params = {
-  hideButton: false, // Default: false.
-  isUndistorted: false // Default: false.
-};
-var manager = new WebVRManager(renderer, effect, params);
+/* front right extension wall */
+wall5.position.set(180, wall_y_pos, -150);
+scene.add(wall5);
+
+/* front left extension wall */
+wall6.position.set(-180, wall_y_pos, -150);
+scene.add(wall6);
 
 /////////////
 // OBJECTS //

@@ -196,14 +196,15 @@ camera.add( listener );
 // sound spheres
 var sphere = new THREE.SphereGeometry( 2.5, 4, 2 );
 material_sphere1 = new THREE.MeshPhongMaterial( { color: 0xB22222, shading: THREE.FlatShading, shininess: 0 } );
+material_sphere2 = new THREE.MeshPhongMaterial( { color: 0xff2200, shading: THREE.FlatShading, shininess: 0 } );
 
 var audioLoader = new THREE.AudioLoader();
 
+//first sphere
 var mesh1 = new THREE.Mesh( sphere, material_sphere1 );
 mesh1.position.set(0, 2.5, -20);
 scene.add( mesh1 );
 var sound1 = new THREE.PositionalAudio( listener );
-//audioLoader.load( 'assets/sounds/bolero-of-fire.mp3', function( buffer ) {
 audioLoader.load( 'assets/sounds/fire-temple.mp3', function( buffer ) {
   sound1.setBuffer( buffer );
   sound1.setRefDistance( 0.03 );
@@ -212,6 +213,21 @@ audioLoader.load( 'assets/sounds/fire-temple.mp3', function( buffer ) {
   sound1.play();
 });
 mesh1.add( sound1 );
+
+//second sphere
+var mesh2 = new THREE.Mesh( sphere, material_sphere2 );
+mesh2.position.set(300, 2.5, -175);
+scene.add( mesh2 );
+
+var sound2 = new THREE.PositionalAudio( listener );
+audioLoader.load( 'assets/sounds/bolero-of-fire.mp3', function( buffer ) {
+  sound2.setBuffer( buffer );
+  sound2.setRefDistance( 0.03 );
+  sound2.setVolume(100);
+  sound2.setLoop(true);
+  sound2.play();
+});
+mesh2.add( sound2 );
 
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);

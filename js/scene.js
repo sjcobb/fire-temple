@@ -98,7 +98,7 @@ var woodsTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/woods-wall
 woodsTexture.wrapS = woodsTexture.wrapT = THREE.RepeatWrapping; 
 woodsTexture.repeat.set( 1, 1 );
 var woodsMaterial = new THREE.MeshBasicMaterial( { map: woodsTexture, side: THREE.DoubleSide } );
-var woodsGeometry = new THREE.PlaneGeometry(100, 40, 1, 1); // e/w, n/s
+var woodsGeometry = new THREE.PlaneGeometry(100, 50, 1, 1); // e/w, n/s
 
 var brick_length = 300;
 var brickTexture = new THREE.ImageUtils.loadTexture( 'assets/textures/brick-wall.jpg' );

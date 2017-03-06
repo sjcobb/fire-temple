@@ -240,6 +240,13 @@ function animate(timestamp) {
 
   var elapsed = clock.getElapsedTime();
   
+  fire.update( elapsed );
+  fire.mesh.rotation.y += delta * 0.0006;
+  fire2.update( elapsed );
+  mesh1.rotation.y += delta * 0.0006;
+
+  renderNavi();
+
   controls.update();
   vrControls.update();
   fpVrControls.update(timestamp);
@@ -248,12 +255,6 @@ function animate(timestamp) {
   effect.render(scene, camera);
 
   vrDisplay.requestAnimationFrame(animate);
-
-  fire.update( elapsed );
-  fire.mesh.rotation.y += delta * 0.0006;
-  fire2.update( elapsed );
-  //fire2.mesh.rotation.x += delta * 0.0006;
-  mesh1.rotation.y += delta * 0.0006;
 }
 
 function onResize(e) {

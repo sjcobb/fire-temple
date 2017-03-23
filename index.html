@@ -57,7 +57,7 @@
       </a-entity>
 
       <!-- inventory -->
-      <a-entity id="inventory" position="0 8.1 4" sound="src: /assets/sounds/fire-temple.mp3; autoplay: true; loop: true;">
+      <a-entity id="inventory" position="0 8.1 4">
         <a-entity id="inv-slot-1" class="inv-slot" geometry="primitive: plane; height: 0.5; width: 0.5" rotation="-90 0 0" position="0 0.01 -0.25" material="color: #FFFFFF; transparent: true; opacity: 0.6">
           <a-animation begin="animate-inventory" easing="ease" attribute="position" fill="forwards" from="0 0.01 -0.25" to="0 0.01 -0.5" dur="1500"></a-animation>
           <a-animation begin="animate-inventory-close" easing="ease" attribute="position" fill="forwards" from="0 0.01 -0.5" to="0 0.01 -0.25" dur="1500"></a-animation>
@@ -120,6 +120,20 @@
           <a-model src="models/key.dae" position="0 0 0" mixin="key-model"></a-model>
           <a-entity mixin="key-trigger" material="transparent: true; opacity: 0"></a-entity>
         </a-entity>
+      </a-entity>
+      
+      <!-- SOUND 
+      https://github.com/aframevr/aframe/blob/master/docs/guides/index.md
+      https://github.com/ngokevin/aframe-audio-visualizer-components/issues/4
+      -->
+      <a-sound src="/assets/sounds/bolero-of-fire.mp3" autoplay="true"
+    position="0 8 -10"></a-sound>
+      <!-- Orange Ball -->
+      <a-entity position="0 8 -10">
+        
+        <a-sphere position="0 4.2 0" radius="4.2" color="#F16745"
+                  roughness="0.8" width-segments="52" height-segments="52"></a-sphere>
+        <a-image src="#shadow3" rotation="-90 0 0" scale="3 3 3"></a-image>
       </a-entity>
 
       <!-- ground floor -->

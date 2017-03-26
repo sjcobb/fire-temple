@@ -53,9 +53,9 @@
           </a-entity>
 
           <!-- items -->
-          <a-model id="player-sword" class="right-hand" visible="true" look-controls="enabled: false" src="models/sword.dae" position="0.7 -0.5 -1.2" rotation="50 0 60" scale="0.08 0.08 0.08"></a-model>
-          <a-model id="player-key" class="right-hand" visible="false" look-controls="enabled: false" src="models/key.dae" position="0.7 -0.5 -1.2" rotation="50 0 -120" scale="0.08 0.08 0.08"></a-model>
-          <a-model id="player-shield" class="left-hand" visible="false" look-controls="enabled: false" src="models/shield.dae" position="-0.8 -0.8 -0.7" rotation="90 0 180" scale="0.08 0.08 0.08"></a-model>
+          <a-collada-model id="player-sword" class="right-hand" visible="true" look-controls="enabled: false" src="models/sword.dae" position="0.7 -0.5 -1.2" rotation="50 0 60" scale="0.08 0.08 0.08"></a-collada-model>
+          <a-collada-model id="player-key" class="right-hand" visible="false" look-controls="enabled: false" src="models/key.dae" position="0.7 -0.5 -1.2" rotation="50 0 -120" scale="0.08 0.08 0.08"></a-collada-model>
+          <a-collada-model id="player-shield" class="left-hand" visible="false" look-controls="enabled: false" src="models/shield.dae" position="-0.8 -0.8 -0.7" rotation="90 0 180" scale="0.08 0.08 0.08"></a-collada-model>
         </a-entity>
       </a-entity>
 
@@ -79,7 +79,7 @@
         </a-entity>
         <a-entity id="compass">
           <a-entity look-controls geometry="primitive: box; height: 0.3; width: 0.3; depth: 0.05" material="color: #FCB514" position="0 0.1 0"></a-entity>
-          <a-model src="models/compass_needle.dae" scale="0.02 0.02 0.02" position="0 0.2 0"></a-model>
+          <a-collada-model src="models/compass_needle.dae" scale="0.02 0.02 0.02" position="0 0.2 0"></a-collada-model>
         </a-entity>
       </a-entity>
 
@@ -94,7 +94,7 @@
         <a-entity class="bottom" mixin="wall bottom-outside" visible="true" position="4 8 8"></a-entity>
         <a-entity class="back" mixin="wall back-outside" visible="true" position="-4 10 2"></a-entity>
         <a-entity class="back" mixin="wall back-outside" visible="true" position="0 10 2"></a-entity>
-        <a-model src="models/entrance2.dae" scale="0.2 0.2 0.2" position="0 8 1.91"></a-model>
+        <a-collada-model src="models/entrance2.dae" scale="0.2 0.2 0.2" position="0 8 1.91"></a-collada-model>
         <a-entity id="entrance-trigger" geometry="primitive: plane; height: 3; width: 2" position="0 9.5 2.2" rotation="0 0 0" material="transparent: true; opacity: 0"></a-entity>
         <a-entity class="back" mixin="wall back-outside" visible="true" position="4 10 2"></a-entity>
         <a-entity class="back" mixin="wall back-outside" visible="true" position="-4 14 2"></a-entity>
@@ -120,7 +120,7 @@
 
         <!-- items -->
         <a-entity id="key" class="pickup" position="0 8 6">
-          <a-model src="models/key.dae" position="0 0 0" mixin="key-model"></a-model>
+          <a-collada-model src="models/key.dae" position="0 0 0" mixin="key-model"></a-collada-model>
           <a-entity mixin="key-trigger" material="transparent: true; opacity: 0"></a-entity>
         </a-entity>
       </a-entity>

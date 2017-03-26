@@ -1,5 +1,32 @@
 /*** SCENE JS ***/
 
+/*AFRAME.registerComponent('lost', {
+  schema: {
+      color: {
+        default: '#000'
+      },
+    },
+
+    update: function() {
+
+      var wallTexture = loader.load( 'assets/textures/lost-wall.png' );
+
+      var material = new THREE.MeshBasicMaterial({
+        color: this.data.color,
+        map: wallTexture, 
+        side: THREE.DoubleSide
+      });
+
+      var geometry = new THREE.PlaneGeometry(100, 50, 1, 1);
+
+      this.el.setObject3D('mesh', new THREE.Mesh(geometry, material));
+    },
+
+    remove: function() {
+      this.el.removeObject3D('mesh');
+    }
+});*/
+
 AFRAME.registerComponent('fire', {
   schema: {
 

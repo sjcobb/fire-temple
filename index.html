@@ -34,6 +34,7 @@
         <a-mixin id="key-trigger" geometry="primitive: plane; height: 0.7; width: 0.4" position="0 0.2 0.05" rotation="-90 0 0"></a-mixin>
         <a-mixin id="shield-model" scale="0.06 0.06 0.06"></a-mixin>
         <a-mixin id="shield-trigger" geometry="primitive: plane; height: 0.7; width: 0.6" position="0 0.2 0.05" rotation="-90 0 0"></a-mixin>
+        <img id="texture-lost" src="assets/textures/lost-wall.png">
         <img id="texture-stone" src="textures/stone_wall.png?v=3">
         <img id="texture-stone2" src="textures/stone_wall2.png?v=3">
         <img id="texture-straw" src="textures/stone_floor_brown.png?v=3">
@@ -48,6 +49,9 @@
         <img id="tutorial-7" src="textures/tutorial_7.png?v=1">
         <img id="tutorial-8" src="textures/tutorial_8.png?v=1">
       </a-assets>
+      
+      <!-- light -->
+      <a-entity light="type: ambient; intensity: 0.2; color: #BBB"></a-entity>
 
       <!-- player -->
       <a-entity id="player" position="0 9.8 4">
@@ -64,8 +68,12 @@
         </a-entity>
       </a-entity>
       
+      <!-- lost portal -->
+      <a-plane src="#texture-lost" position="0 8.6 10" rotation="0 180 0" width="25" height="15"></a-plane>
+
       <!-- volumetric fire -->
-      <a-entity fire></a-entity>
+      <!-- <a-entity fire position="0 9 6"></a-entity> -->
+      <!-- <a-entity lost position="0 9 6"></a-entity> -->
 
       <!-- inventory -->
       <a-entity id="inventory" position="0 8.1 4">

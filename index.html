@@ -7,8 +7,13 @@
     <meta name="author" content="Steven Cobb">
     <!-- <script src="js/aframe-prod.js"></script> -->
     <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
-    <script src="js/app.js?v=1.0.1"></script>
+
+    <script src="js/app.js"></script>
+
+    <script src="js/lib/VolumetricFire.js"></script>
+    <script src="js/scene.js"></script>
   </head>
+
   <body>
     
     <a-scene>
@@ -58,6 +63,9 @@
           <a-collada-model id="player-shield" class="left-hand" visible="false" look-controls="enabled: false" src="models/shield.dae" position="-0.8 -0.8 -0.7" rotation="90 0 180" scale="0.08 0.08 0.08"></a-collada-model>
         </a-entity>
       </a-entity>
+      
+      <!-- volumetric fire -->
+      <a-entity fire></a-entity>
 
       <!-- inventory -->
       <a-entity id="inventory" position="0 8.1 4">
@@ -129,7 +137,7 @@
       https://github.com/aframevr/aframe/blob/master/docs/guides/index.md
       https://github.com/ngokevin/aframe-audio-visualizer-components/issues/4
       -->
-      <a-sound src="/assets/sounds/bolero-of-fire.mp3" autoplay="true"
+      <a-sound src="/assets/sounds/bolero-of-fire.mp3" autoplay="true" loop="true"
     position="0 8 -10"></a-sound>
       <!-- Orange Ball -->
       <a-entity position="0 8 -10">

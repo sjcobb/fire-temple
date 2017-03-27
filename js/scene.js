@@ -1,33 +1,6 @@
 /*** SCENE JS ***/
 
-/*AFRAME.registerComponent('lost', {
-  schema: {
-      color: {
-        default: '#000'
-      },
-    },
-
-    update: function() {
-
-      var wallTexture = loader.load( 'assets/textures/lost-wall.png' );
-
-      var material = new THREE.MeshBasicMaterial({
-        color: this.data.color,
-        map: wallTexture, 
-        side: THREE.DoubleSide
-      });
-
-      var geometry = new THREE.PlaneGeometry(100, 50, 1, 1);
-
-      this.el.setObject3D('mesh', new THREE.Mesh(geometry, material));
-    },
-
-    remove: function() {
-      this.el.removeObject3D('mesh');
-    }
-});*/
-
-AFRAME.registerComponent('fire', {
+/*AFRAME.registerComponent('fire-old', {
   schema: {
 
   },
@@ -59,4 +32,32 @@ AFRAME.registerComponent('fire', {
   remove: function () {},
   pause: function () {},
   play: function () {}
+});*/
+
+AFRAME.registerComponent('fire', {
+  schema: {
+      color: {
+        default: '#fff'
+      },
+    },
+
+    init: function () {
+
+      var loader = new THREE.TextureLoader();
+
+      //var tex = THREE.ImageUtils.loadTexture("/js/lib/three.fire/Fire.png");
+      var tex = loader.load( '/js/lib/three.fire/Fire.png' );
+
+      var test = new THREE.Fire(tex);
+      console.log(test);
+
+      this.el.setObject3D('mesh', new THREE.Fire( tex ));
+
+    },
+    update: function() {
+
+    },
+    remove: function() {
+      //this.el.removeObject3D('mesh');
+    }
 });

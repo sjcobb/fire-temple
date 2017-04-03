@@ -1,37 +1,18 @@
 /*** SCENE JS ***/
 
-/*AFRAME.registerComponent('fire-old', {
+var fire;
+
+/*AFRAME.registerShader('sunSky', {
   schema: {
-
+    luminance: {default: 1, max: 0, min: 2, is: 'uniform'},
+    mieCoefficient: {default: 0.005, min: 0, max: 0.1, is: 'uniform'},
+    mieDirectionalG: {default: 0.8, min: 0, max: 1, is: 'uniform'},
+    reileigh: {default: 1, max: 0, min: 4, is: 'uniform'},
+    sunPosition: {type: 'vec3', default: '0 0 -1', is: 'uniform'},
+    turbidity: {default: 2, max: 0, min: 20, is: 'uniform'}
   },
-  init: function () {
-    console.log("init fire");
-
-    VolumetricFire.texturePath = '../textures/fire';
-
-    var fireWidth  = 2;
-    var fireHeight = 4;
-    var fireDepth  = 2;
-    var sliceSpacing = 0.5;
-
-    var fire = new VolumetricFire(
-      fireWidth,
-      fireHeight,
-      fireDepth,
-      sliceSpacing,
-      camera
-    );
-
-    this.el.setObject3D('mesh', new THREE.Mesh(fire.geometry, fire.material));
-
-  },
-  update: function () {
-
-  },
-  tick: function () {},
-  remove: function () {},
-  pause: function () {},
-  play: function () {}
+  vertexShader: vertexShader,
+  fragmentShader: fragmentShader
 });*/
 
 AFRAME.registerComponent('fire', {
@@ -48,16 +29,59 @@ AFRAME.registerComponent('fire', {
       //var tex = THREE.ImageUtils.loadTexture("/js/lib/three.fire/Fire.png");
       var tex = loader.load( '/js/lib/three.fire/Fire.png' );
 
-      var test = new THREE.Fire(tex);
-      console.log(test);
+      fire = new THREE.Fire(tex);
+      fire.scale.set( 3, 3, 3 );
+      console.log(fire);
 
-      this.el.setObject3D('mesh', new THREE.Fire( tex ));
+      this.el.setObject3D('mesh', fire);
 
     },
     update: function() {
-
+      //fire.update(t);
+      fire.update();
     },
     remove: function() {
       //this.el.removeObject3D('mesh');
     }
+});
+
+AFRAME.registerComponent('crate', {
+  schema: {
+      enabled: { default: true },
+      type: { default: 'default' }
+    },
+
+    init: function () {
+      var el = this.el;
+    }
+    
+    update: function() {
+
+      var data = this.data;
+      
+      //var loader = new THREE.TextureLoader();
+
+      //var tex = loader.load( '/assets/textures/crate.gif' );
+
+      var tex = THREE.ImageUtils.loadTexture("/assets/textures/crate.gif");
+      var geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
+      var material = new THREE.MeshBasicMaterial( { map: tex } );
+      crate = new THREE.Mesh( geometry, material );
+      //this.el.setObject3D('mesh', crate);
+
+      this.el.setObject3D(this.attrName, new THREE.Mesh( geometry, material ));
+
+      //fire.update();
+    },
+
+});
+
+AFRAME.registerPrimitive('a-crate', {
+  defaultComponents: {
+    crate: {}
+  },
+
+  mappings: {
+    
+  }
 });

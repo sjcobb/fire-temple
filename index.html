@@ -10,8 +10,8 @@
 
     <script src="js/app.js"></script>
 
-    <!-- <script src="js/lib/three.fire/FireShader.js"></script> -->
-    <!-- <script src="js/lib/three.fire/Fire.js"></script> -->
+    <script src="js/lib/three.fire/FireShader.js"></script>
+    <script src="js/lib/three.fire/Fire.js"></script>
     <script src="js/scene.js"></script>
   </head>
 
@@ -57,7 +57,7 @@
       <!-- player -->
       <a-entity id="player" position="0 9.8 4">
 
-        <a-entity crate visible="true" position="0 0 0"></a-entity>
+        <a-entity crate visible="true" position="0 0 5"></a-entity>
 
         <a-entity light="type: point; intensity: 1.5; distance: 17; decay: 4" position="0 0 0"></a-entity>
         <a-entity camera look-controls wasd-controls="enabled: true">
@@ -76,9 +76,7 @@
       <a-plane src="#texture-lost" position="0 8.6 10" rotation="0 180 0" width="25" height="15"></a-plane>
 
       <!-- volumetric fire -->
-      <!-- <a-entity fire position="0 8.1 4"></a-entity> -->
-      <a-entity crate visible="true" position="0 9.8 4"></a-entity>
-      <!-- <a-entity geometry="primitive: box" position="0 9.8 4"></a-entity> -->
+      <a-entity fire visible="true" position="0 9.8 4"></a-entity>
 
       <!-- inventory -->
       <a-entity id="inventory" position="0 8.1 4">

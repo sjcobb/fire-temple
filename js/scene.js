@@ -1,6 +1,65 @@
 /*** SCENE JS ***/
 
-var fire;
+AFRAME.registerComponent('fire', {
+  schema: {
+    width: {type: 'number', default: 1},
+    height: {type: 'number', default: 1},
+    depth: {type: 'number', default: 1},
+    color: {type: 'color', default: '#AAA'}
+  },
+  init: function () {
+    var data = this.data;
+    var el = this.el;
+
+    //var loader = new THREE.TextureLoader();
+    //this.tex = loader.load( '/js/lib/three.fire/Fire.png' );
+
+    this.tex = THREE.ImageUtils.loadTexture("/js/lib/three.fire/Fire.png");
+
+    this.fire = new THREE.Fire(this.tex);
+    this.fire.scale.set( 5, 5, 5 );
+
+    el.setObject3D('fire-mesh', this.fire);
+    
+  }
+});
+
+AFRAME.registerComponent('crate', {
+  schema: {
+    width: {type: 'number', default: 1},
+    height: {type: 'number', default: 1},
+    depth: {type: 'number', default: 1},
+    color: {type: 'color', default: '#AAA'}
+  },
+  init: function () {
+    var data = this.data;
+    var el = this.el;
+
+    this.tex = THREE.ImageUtils.loadTexture("/assets/textures/crate.gif");
+
+    // Create geometry.
+    this.geometry = new THREE.BoxBufferGeometry(data.width, data.height, data.depth);
+
+    // Create material.
+    //this.material = new THREE.MeshStandardMaterial({color: data.color});
+    this.material = new THREE.MeshBasicMaterial( { map: this.tex } );
+
+    // Create mesh.
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+    // Set mesh on entity.
+    el.setObject3D('crate-mesh', this.mesh);
+  }
+});
+
+
+/*AFRAME.registerPrimitive('a-crate', {
+  defaultComponents: {
+    crate: {}
+  },
+  mappings: {}
+});*/
+
 
 /*AFRAME.registerShader('sunSky', {
   schema: {
@@ -14,74 +73,3 @@ var fire;
   vertexShader: vertexShader,
   fragmentShader: fragmentShader
 });*/
-
-AFRAME.registerComponent('fire', {
-  schema: {
-      color: {
-        default: '#fff'
-      },
-    },
-
-    init: function () {
-
-      var loader = new THREE.TextureLoader();
-
-      //var tex = THREE.ImageUtils.loadTexture("/js/lib/three.fire/Fire.png");
-      var tex = loader.load( '/js/lib/three.fire/Fire.png' );
-
-      fire = new THREE.Fire(tex);
-      fire.scale.set( 3, 3, 3 );
-      console.log(fire);
-
-      this.el.setObject3D('mesh', fire);
-
-    },
-    update: function() {
-      //fire.update(t);
-      fire.update();
-    },
-    remove: function() {
-      //this.el.removeObject3D('mesh');
-    }
-});
-
-AFRAME.registerComponent('crate', {
-  schema: {
-      enabled: { default: true },
-      type: { default: 'default' }
-    },
-
-    init: function () {
-      var el = this.el;
-    }
-    
-    update: function() {
-
-      var data = this.data;
-      
-      //var loader = new THREE.TextureLoader();
-
-      //var tex = loader.load( '/assets/textures/crate.gif' );
-
-      var tex = THREE.ImageUtils.loadTexture("/assets/textures/crate.gif");
-      var geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
-      var material = new THREE.MeshBasicMaterial( { map: tex } );
-      crate = new THREE.Mesh( geometry, material );
-      //this.el.setObject3D('mesh', crate);
-
-      this.el.setObject3D(this.attrName, new THREE.Mesh( geometry, material ));
-
-      //fire.update();
-    },
-
-});
-
-AFRAME.registerPrimitive('a-crate', {
-  defaultComponents: {
-    crate: {}
-  },
-
-  mappings: {
-    
-  }
-});

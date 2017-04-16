@@ -17,12 +17,29 @@ AFRAME.registerComponent('fire', {
     var loader = new THREE.TextureLoader();
     this.tex = loader.load( '/js/lib/three.fire/Fire.png' );
 
-    //this.tex = THREE.ImageUtils.loadTexture("/js/lib/three.fire/Fire.png");
+    this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
+    this.tex.wrapS = THREE.wrapT = THREE.ClampToEdgeWrapping;
 
-    this.fire = new THREE.Fire(this.tex);
+    this.geometry = new THREE.BoxGeometry( 1.0, 1.0, 1.0 );
 
-    this.fire.scale.set( 2, 2, 2 );
-    //this.fire.material.wireframe = true;
+    this.material = new THREE.ShaderMaterial( {
+      defines         : THREE.FireShader.defines,
+      uniforms        : THREE.UniformsUtils.clone( THREE.FireShader.uniforms ),
+      vertexShader    : THREE.FireShader.vertexShader,
+      fragmentShader  : THREE.FireShader.fragmentShader,
+      transparent     : true,
+      depthWrite      : false,
+      depthTest       : false
+    } );
+    this.material.uniforms.fireTex.value = this.tex;
+    this.material.uniforms.color.value = new THREE.Color( 0xeeeeee );
+    this.material.uniforms.invModelMatrix.value = new THREE.Matrix4();
+    this.material.uniforms.scale.value = new THREE.Vector3( 1, 1, 1 );
+    this.material.uniforms.seed.value = Math.random() * 19.19;
+    //console.log(this.material);
+
+    this.fire = new THREE.Mesh(this.geometry, this.material);
+    this.fire.frustumCulled = false;
     
     var wireframeMat = new THREE.MeshBasicMaterial({
         color : new THREE.Color(0xffffff),
@@ -32,7 +49,9 @@ AFRAME.registerComponent('fire', {
     this.fire.add(wireframe);
     wireframe.visible = true;
 
-    console.log(this.fire);
+    //this.fire.scale.set( 5, 5, 5 );
+    
+    //console.log(this.fire);
     el.setObject3D('fire-mesh', this.fire);
     
   },
@@ -40,15 +59,38 @@ AFRAME.registerComponent('fire', {
     
     var elapsed = clock.getElapsedTime();
 
-    //this.el.object3D.visible = this.data;
+    console.log( this );
+    console.log( this.material );
+    //console.log( this.fire.material );
 
-    //this.el.object3D.update(elapsed);
-    //this.fire.update(elapsed);
+    //console.log( this.el );
+    //console.log( this.el.getAttribute('rotation') );
+
+    var invModelMatrix = this.material.uniforms.invModelMatrix.value;
+
+    //this.updateMatrix();
+    invModelMatrix.getInverse( this.fire.matrix );
+
+    /*if( time !== undefined ) {
+        this.material.uniforms.time.value = time;
+    }*/
+
+    this.material.uniforms.invModelMatrix.value = invModelMatrix;
+    this.material.uniforms.scale.value = this.fire.scale;
+
     //this.el.update(elapsed);
 
     //this.el.setAttribute('scale', {x: this.data.scale, y: this.data.scale, z: this.data.scale });
-    this.el.setAttribute('scale', {x: 2, y: 2, z: 2 });
+    //this.el.setAttribute('scale', this.fire.scale);
 
+    //this.material.visible = false;
+    //this.material.wireframe = true;
+
+    this.material.uniforms.time = elapsed;
+
+  },
+  tick: function (time, delta) {
+    //console.log(time);
   }
 });
 

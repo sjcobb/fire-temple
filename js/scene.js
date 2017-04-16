@@ -2,6 +2,7 @@
 
 var clock;
 clock = new THREE.Clock();
+var elapsed = clock.getElapsedTime();
 
 AFRAME.registerComponent('fire', {
   schema: {
@@ -36,7 +37,6 @@ AFRAME.registerComponent('fire', {
     this.material.uniforms.invModelMatrix.value = new THREE.Matrix4();
     this.material.uniforms.scale.value = new THREE.Vector3( 1, 1, 1 );
     this.material.uniforms.seed.value = Math.random() * 19.19;
-    //console.log(this.material);
 
     this.fire = new THREE.Mesh(this.geometry, this.material);
     this.fire.frustumCulled = false;
@@ -49,48 +49,29 @@ AFRAME.registerComponent('fire', {
     this.fire.add(wireframe);
     wireframe.visible = true;
 
-    //this.fire.scale.set( 5, 5, 5 );
+    //this.fire.scale.set(3, 3, 3);
     
-    //console.log(this.fire);
+    console.log(this.fire);
     el.setObject3D('fire-mesh', this.fire);
     
   },
   update: function (oldData) {
-    
-    var elapsed = clock.getElapsedTime();
-
-    console.log( this );
-    console.log( this.material );
-    //console.log( this.fire.material );
-
-    //console.log( this.el );
-    //console.log( this.el.getAttribute('rotation') );
-
-    var invModelMatrix = this.material.uniforms.invModelMatrix.value;
-
-    //this.updateMatrix();
-    invModelMatrix.getInverse( this.fire.matrix );
-
-    /*if( time !== undefined ) {
-        this.material.uniforms.time.value = time;
-    }*/
-
-    this.material.uniforms.invModelMatrix.value = invModelMatrix;
-    this.material.uniforms.scale.value = this.fire.scale;
-
-    //this.el.update(elapsed);
-
-    //this.el.setAttribute('scale', {x: this.data.scale, y: this.data.scale, z: this.data.scale });
-    //this.el.setAttribute('scale', this.fire.scale);
-
-    //this.material.visible = false;
-    //this.material.wireframe = true;
-
-    this.material.uniforms.time = elapsed;
 
   },
   tick: function (time, delta) {
-    //console.log(time);
+    elapsed = clock.getElapsedTime();
+
+    //var invModelMatrix = this.material.uniforms.invModelMatrix.value;
+
+    //this.updateMatrix();
+    //invModelMatrix.getInverse( this.fire.matrix );
+
+    //this.material.uniforms.invModelMatrix.value = invModelMatrix;
+    //this.material.uniforms.scale.value = this.fire.scale;
+
+    //this.el.setAttribute('scale', this.fire.scale);
+
+    this.material.uniforms.time.value = elapsed;
   }
 });
 

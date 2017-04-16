@@ -1,7 +1,6 @@
 /*** SCENE JS ***/
 
 var clock;
-clock = new THREE.Clock();
 
 AFRAME.registerComponent('fire', {
   schema: {
@@ -14,40 +13,56 @@ AFRAME.registerComponent('fire', {
     var data = this.data;
     var el = this.el;
 
+    clock = new THREE.Clock();
     var loader = new THREE.TextureLoader();
     this.tex = loader.load( '/js/lib/three.fire/Fire.png' );
 
     //this.tex = THREE.ImageUtils.loadTexture("/js/lib/three.fire/Fire.png");
 
-    this.fire = new THREE.Fire(this.tex);
+    //this.fire = new THREE.Fire(this.tex);
 
-    this.fire.scale.set( 2, 2, 2 );
-    //this.fire.material.wireframe = true;
+
+    this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
+    this.tex.wrapS = THREE.wrapT = THREE.ClampToEdgeWrapping;
+
+    //this.geometry = new THREE.BoxBufferGeometry(data.width, data.height, data.depth);
+    this.geometry = new THREE.BoxGeometry( 1.0, 1.0, 1.0 );
+    //this.material = new THREE.MeshBasicMaterial( { map: this.tex } );
+
+    this.material = new THREE.ShaderMaterial( {
+      defines         : THREE.FireShader.defines,
+      uniforms        : THREE.UniformsUtils.clone( THREE.FireShader.uniforms ),
+      vertexShader    : THREE.FireShader.vertexShader,
+      fragmentShader  : THREE.FireShader.fragmentShader,
+      transparent     : true,
+      depthWrite      : false,
+      depthTest       : false
+    } );
+    this.material.uniforms.fireTex.value = this.tex;
+    this.material.uniforms.color.value = new THREE.Color( 0xeeeeee );
+    this.material.uniforms.invModelMatrix.value = new THREE.Matrix4();
+    this.material.uniforms.scale.value = new THREE.Vector3( 1, 1, 1 );
+    this.material.uniforms.seed.value = Math.random() * 19.19;
+    //console.log(THREE.FireShader);
+    //console.log(this.material);
+
+    this.fire = new THREE.Mesh(this.geometry, this.material);
+    this.fire.frustumCulled = false;
+    //this.fire = new THREE.Mesh(this.geometry, fireMaterial);
+
+
+    this.fire.scale.set( 5, 5, 5 );
+    this.fire.material.wireframe = true;
     
-    var wireframeMat = new THREE.MeshBasicMaterial({
-        color : new THREE.Color(0xffffff),
-        wireframe : true
-    });
-    var wireframe = new THREE.Mesh(this.fire.geometry, wireframeMat.clone());
-    this.fire.add(wireframe);
-    wireframe.visible = true;
-
     console.log(this.fire);
     el.setObject3D('fire-mesh', this.fire);
     
   },
-  update: function (oldData) {
+  update: function () {
     
-    var elapsed = clock.getElapsedTime();
-
-    //this.el.object3D.visible = this.data;
-
-    //this.el.object3D.update(elapsed);
-    //this.fire.update(elapsed);
-    //this.el.update(elapsed);
-
-    //this.el.setAttribute('scale', {x: this.data.scale, y: this.data.scale, z: this.data.scale });
-    this.el.setAttribute('scale', {x: 2, y: 2, z: 2 });
+    var t = clock.elapsedTime;
+    //console.log(t);
+    //this.fire.update(t);
 
   }
 });

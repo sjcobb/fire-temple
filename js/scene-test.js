@@ -1,6 +1,8 @@
 /*** SCENE JS ***/
 
 var clock;
+clock = new THREE.Clock();
+var elapsed = clock.getElapsedTime();
 
 AFRAME.registerComponent('fire', {
   schema: {
@@ -13,21 +15,13 @@ AFRAME.registerComponent('fire', {
     var data = this.data;
     var el = this.el;
 
-    clock = new THREE.Clock();
     var loader = new THREE.TextureLoader();
     this.tex = loader.load( '/js/lib/three.fire/Fire.png' );
-
-    //this.tex = THREE.ImageUtils.loadTexture("/js/lib/three.fire/Fire.png");
-
-    //this.fire = new THREE.Fire(this.tex);
-
 
     this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
     this.tex.wrapS = THREE.wrapT = THREE.ClampToEdgeWrapping;
 
-    //this.geometry = new THREE.BoxBufferGeometry(data.width, data.height, data.depth);
     this.geometry = new THREE.BoxGeometry( 1.0, 1.0, 1.0 );
-    //this.material = new THREE.MeshBasicMaterial( { map: this.tex } );
 
     this.material = new THREE.ShaderMaterial( {
       defines         : THREE.FireShader.defines,
@@ -42,66 +36,52 @@ AFRAME.registerComponent('fire', {
     this.material.uniforms.color.value = new THREE.Color( 0xeeeeee );
     this.material.uniforms.invModelMatrix.value = new THREE.Matrix4();
     this.material.uniforms.scale.value = new THREE.Vector3( 1, 1, 1 );
+    //this.material.uniforms.scale.value = this.el.getAttribute('scale');
     this.material.uniforms.seed.value = Math.random() * 19.19;
-    //console.log(THREE.FireShader);
-    //console.log(this.material);
 
     this.fire = new THREE.Mesh(this.geometry, this.material);
     this.fire.frustumCulled = false;
-    //this.fire = new THREE.Mesh(this.geometry, fireMaterial);
+    
+    var wireframeMat = new THREE.MeshBasicMaterial({
+        color : new THREE.Color(0xffffff),
+        wireframe : true
+    });
+    var wireframe = new THREE.Mesh(this.fire.geometry, wireframeMat.clone());
+    this.fire.add(wireframe);
+    wireframe.visible = true;
 
-
-    this.fire.scale.set( 5, 5, 5 );
-    this.fire.material.wireframe = true;
+    //this.fire.scale.set(3, 3, 3);
     
     console.log(this.fire);
     el.setObject3D('fire-mesh', this.fire);
     
   },
-  update: function () {
+  update: function (oldData) {
+
+  },
+  tick: function (time, delta) {
+    elapsed = clock.getElapsedTime();
+
+    var invModelMatrix = this.material.uniforms.invModelMatrix.value;
+    //console.log(invModelMatrix);
+
+    this.fire.updateMatrix();
+    invModelMatrix.getInverse( this.fire.matrix );
+
+    this.material.uniforms.time.value = elapsed; //always needed for flame flicker
+
+    this.material.uniforms.invModelMatrix.value = invModelMatrix;
     
-    var t = clock.elapsedTime;
-    //console.log(t);
-    //this.fire.update(t);
+    //this.material.uniforms.scale.value.set(3, 3, 3);
 
+    //this.material.uniforms.scale.value = this.el.getAttribute('scale');
+    this.material.uniforms.scale.value = this.fire.scale;
+
+    //this.el.setAttribute('scale', this.fire.scale);
+
+    //console.log(this.el.getAttribute('scale'));
   }
 });
-
-AFRAME.registerComponent('crate', {
-  schema: {
-    width: {type: 'number', default: 1},
-    height: {type: 'number', default: 1},
-    depth: {type: 'number', default: 1},
-    color: {type: 'color', default: '#AAA'}
-  },
-  init: function () {
-    var data = this.data;
-    var el = this.el;
-
-    this.tex = THREE.ImageUtils.loadTexture("/assets/textures/crate.gif");
-    this.geometry = new THREE.BoxBufferGeometry(data.width, data.height, data.depth);
-
-    //this.material = new THREE.MeshStandardMaterial({color: data.color});
-    this.material = new THREE.MeshBasicMaterial( { map: this.tex } );
-
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.mesh.scale.set(2, 2, 2);
-
-    //this.mesh.material.wireframe = true;
-    //console.log(this.mesh);
-
-    el.setObject3D('crate-mesh', this.mesh);
-  }
-});
-
-
-/*AFRAME.registerPrimitive('a-crate', {
-  defaultComponents: {
-    crate: {}
-  },
-  mappings: {}
-});*/
-
 
 AFRAME.registerShader('fireShader', {
   schema: {
@@ -112,6 +92,26 @@ AFRAME.registerShader('fireShader', {
     sunPosition: {type: 'vec3', default: '0 0 -1', is: 'uniform'},
     turbidity: {default: 2, max: 0, min: 20, is: 'uniform'}*/
   },
+
+  defines: {
+      "ITERATIONS"    : "20",
+      "OCTIVES"       : "3"
+  },
+
+  uniforms: {
+      "fireTex"       : { type : "t",     value : null },
+      "color"         : { type : "c",     value : null },
+      "time"          : { type : "f",     value : 0.0 },
+      "seed"          : { type : "f",     value : 0.0 },
+      "invModelMatrix": { type : "m4",    value : null },
+      "scale"         : { type : "v3",    value : null },
+
+      "noiseScale"    : { type : "v4",    value : new THREE.Vector4(1, 2, 1, 0.3) },
+      "magnitude"     : { type : "f",     value : 1.3 },
+      "lacunarity"    : { type : "f",     value : 2.0 },
+      "gain"          : { type : "f",     value : 0.5 }
+  },
+  
   vertexShader: [
     "varying vec3 vWorldPos;",
     "void main() {",
@@ -283,3 +283,42 @@ AFRAME.registerShader('fireShader', {
     "}",
   ].join("\n")
 });
+
+
+
+
+/*** CRATE EXAMPLE ***/
+AFRAME.registerComponent('crate', {
+  schema: {
+    width: {type: 'number', default: 1},
+    height: {type: 'number', default: 1},
+    depth: {type: 'number', default: 1},
+    color: {type: 'color', default: '#AAA'}
+  },
+  init: function () {
+    var data = this.data;
+    var el = this.el;
+
+    this.tex = THREE.ImageUtils.loadTexture("/assets/textures/crate.gif");
+    this.geometry = new THREE.BoxBufferGeometry(data.width, data.height, data.depth);
+
+    //this.material = new THREE.MeshStandardMaterial({color: data.color});
+    this.material = new THREE.MeshBasicMaterial( { map: this.tex } );
+
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.mesh.scale.set(2, 2, 2);
+
+    //this.mesh.material.wireframe = true;
+    //console.log(this.mesh);
+
+    el.setObject3D('crate-mesh', this.mesh);
+  }
+});
+
+
+/*AFRAME.registerPrimitive('a-crate', {
+  defaultComponents: {
+    crate: {}
+  },
+  mappings: {}
+});*/

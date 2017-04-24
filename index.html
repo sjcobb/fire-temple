@@ -13,6 +13,7 @@
     <!-- <script src="js/lib/three.fire/FireShader.js"></script> -->
     <!-- <script src="js/lib/three.fire/Fire.js"></script> -->
     <script src="js/scene.js"></script>
+    <!-- <script src="js/bundle.js"></script> -->
   </head>
 
   <body>
@@ -79,7 +80,21 @@
       <a-plane src="#texture-lost" position="0 8.6 10" rotation="0 180 0" width="25" height="15"></a-plane>
 
       <!-- volumetric fire -->
-      <a-sphere fire visible="true" position="0.3 0.0 -0.3"></a-sphere>
+      <a-sphere material-grid-glitch="color: blue;"
+                radius="0.5"
+                position="-2 1.5 -2">
+      </a-sphere>
+      <a-sphere material-displacement
+                scale="1 1 1"
+                radius="0.2"
+                position="1 1.5 -2"
+                segments-height="128"
+                segments-width="128">
+        <a-animation attribute="scale" direction="alternate-reverse" dur="5000" from="1 1 1" to="4 4 4" repeat="indefinite"></a-animation>
+      </a-sphere>
+
+      <!-- <a-sphere fire visible="true" position="0.3 0.0 -0.3"></a-sphere> -->
+      <!-- <a-sphere fire visible="true" position="0 0 0"></a-sphere> -->
       <!-- <a-entity fire visible="true" position="2 10 3" scale="1.5 1.5 1.5"></a-entity> -->
 
       <!-- <a-sphere fire

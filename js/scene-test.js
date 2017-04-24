@@ -1,17 +1,9 @@
 /*
 *** SCENE JS ***
 */
-
-//#pragma glslify: pnoise3 = require(glsl-noise/periodic/3d)
-
-
-//const glsl = require('glslify');
-
+//https://github.com/aframevr/aframe/issues/2560
+//https://glitch.com/edit/#!/sharp-middle?path=README.md:1:0
 AFRAME.registerComponent('material-displacement', {
-  /**
-   * Creates a new THREE.ShaderMaterial using the two shaders defined
-   * in vertex.glsl and fragment.glsl.
-   */
   init: function () {
     this.material  = new THREE.ShaderMaterial({
       uniforms: {time: { value: 0.0 }},
@@ -21,9 +13,6 @@ AFRAME.registerComponent('material-displacement', {
     this.el.addEventListener('model-loaded', () => this.update());
   },
 
-  /**
-   * Apply the material to the current entity.
-   */
   update: function () {
     const mesh = this.el.getObject3D('mesh');
     if (mesh) {
@@ -31,9 +20,6 @@ AFRAME.registerComponent('material-displacement', {
     }
   },
 
-  /**
-   * On each frame, update the 'time' uniform in the shaders.
-   */
   tick: function (t) {
     this.material.uniforms.time.value = t / 1000;
   },
@@ -47,7 +33,8 @@ AFRAME.registerComponent('material-displacement', {
   ].join('\n'),
 
   fragmentShader: [
-    "float pnoise3(vec3 P, vec3 rep) {",
+    //"float pnoise3(vec3 P, vec3 rep) {",
+    "#pragma pnoise3 = ",
       "vec3 mod289(vec3 x)",
       "{",
         "return x - floor(x * (1.0 / 289.0)) * 289.0;",
@@ -157,6 +144,74 @@ AFRAME.registerComponent('material-displacement', {
       "gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );",
     "}",
   ].join('\n'),
+});
+
+//https://glitch.com/edit/#!/fixed-cent?path=README.md:1:0
+AFRAME.registerComponent('material-grid-glitch', {
+  schema: {color: {type: 'color'}},
+
+  init: function () {
+    const data = this.data;
+  
+    this.material  = new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0.0 },
+        color: { value: new THREE.Color(data.color) }
+      },
+      vertexShader: this.vertexShader,
+      fragmentShader: this.fragmentShader,
+    });
+
+    this.applyToMesh();
+    this.el.addEventListener('model-loaded', () => this.applyToMesh());
+  },
+
+
+  /**
+   * Update the ShaderMaterial when component data changes.
+   */
+  update: function () {
+    this.material.uniforms.color.value.set(this.data.color);
+  },
+    
+  /**
+   * Apply the material to the current entity.
+   */
+  applyToMesh: function() {
+    const mesh = this.el.getObject3D('mesh');
+    if (mesh) {
+      mesh.material = this.material;
+    }
+  },
+
+  /**
+   * On each frame, update the 'time' uniform in the shaders.
+   */
+  tick: function (t) {
+    this.material.uniforms.time.value = t / 1000;
+  },
+
+  vertexShader: [
+    "varying vec2 vUv;",
+    "void main() {",
+      "vUv = uv;",
+      "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+    "}",
+  ].join('\n'),
+
+  fragmentShader: [
+    "varying vec2 vUv;",
+    "uniform vec3 color;",
+    "uniform float time;",
+    "void main() {",
+    "  gl_FragColor = mix(",
+    "    vec4(mod(vUv , 0.05) * 20.0, 1.0, 1.0),",
+    "    vec4(color, 1.0),",
+    "    sin(time)",
+    "  );",
+    "}",
+  ].join('\n'),
+  
 })
 
 /*** THREE.Fire: https://github.com/mattatz/THREE.Fire ***/

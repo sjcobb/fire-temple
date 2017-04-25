@@ -92,12 +92,12 @@ AFRAME.registerComponent('fire', {
         "OCTIVES"       : "3"
       },
       uniforms: {
-        fireTex        : { type : "t",     value : null },
-        color          : { type : "c",     value : null },
+        fireTex        : { type : "t",     value : this.tex },
+        color          : { type : "c",     value : new THREE.Color(0xeeeeee) },
         time           : { type : "f",     value : 0.0 },
-        seed           : { type : "f",     value : 0.0 },
-        invModelMatrix : { type : "m4",    value : null },
-        scale          : { type : "v3",    value : null },
+        seed           : { type : "f",     value : Math.random() * 19.19 },
+        invModelMatrix : { type : "m4",    value : new THREE.Matrix4().set( 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, -0.5, 0, 0, 2 ) },
+        scale          : { type : "v3",    value : new THREE.Vector3(1, 1, 1) },
         noiseScale     : { type : "v4",    value : new THREE.Vector4(1, 2, 1, 0.3) },
         magnitude      : { type : "f",     value : 1.3 },
         lacunarity     : { type : "f",     value : 2.0 },
@@ -111,21 +111,6 @@ AFRAME.registerComponent('fire', {
       depthTest: false
     } );
 
-    this.material.uniforms.fireTex.value = this.tex;
-    this.material.uniforms.color.value = new THREE.Color( 0xeeeeee );
-    this.material.uniforms.invModelMatrix.value = new THREE.Matrix4();
-    this.material.uniforms.scale.value = new THREE.Vector3( 1, 1, 1 );
-    this.material.uniforms.seed.value = Math.random() * 19.19;
-
-    //this.fire = new THREE.Mesh(this.geometry, this.material);
-    //this.fire.frustumCulled = false;
-    
-    //console.log(this.fire);
-    //el.setObject3D('fire-mesh', this.fire);
-
-    //this.applyToMesh();
-    //this.el.addEventListener('model-loaded', () => this.applyToMesh());
-
     var wireframeMat = new THREE.MeshBasicMaterial({
         color : new THREE.Color(0xffffff),
         wireframe : true
@@ -134,67 +119,41 @@ AFRAME.registerComponent('fire', {
     mesh.add(wireframe);
     //wireframe.visible = true;
 
-    console.log(this.material);
-    this.material.needsUpdate = true;
-    mesh.material = this.material;
-
-    var invModelMatrix = mesh.material.uniforms.invModelMatrix.value;
-    invModelMatrix.getInverse( mesh.matrix );
-    mesh.material.uniforms.invModelMatrix.value = invModelMatrix;
-    //mesh.position.set(0.5, 0, 0);
+    this.el.addEventListener('model-loaded', () => this.update());
   },
   update: function (data) {
-    mesh = this.el.getObject3D('mesh');
-    //this.material.src = data.src;
-    //this.material.uniforms.scale.value = this.scale;
-
-    this.el.setAttribute('position', {x: 0.5, y: 0, z: 0});
-    //mesh.material = this.material;
-    //this.applyToMesh();
-
-    /*const mesh = this.el.getObject3D('mesh');
-    if (mesh) {
-      mesh.material = this.material;
-    }*/
-  },
-  applyToMesh: function() {
     const mesh = this.el.getObject3D('mesh');
-    //console.log(mesh);
-
-    //mesh.position.set(0.5, 0, 0);
-    //console.log(mesh.position);
     if (mesh) {
-      var wireframeMat = new THREE.MeshBasicMaterial({
-          color : new THREE.Color(0xffffff),
-          wireframe : true
-      });
-      var wireframe = new THREE.Mesh(mesh.geometry, wireframeMat.clone());
-      mesh.add(wireframe);
-      //wireframe.visible = true;
 
+      //var m = new THREE.Matrix4();
+      //m.set( 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, 0, -0.5, 0, 0, 5 );
+
+      var invModelMatrix = this.material.uniforms.invModelMatrix.value;
+      invModelMatrix.getInverse( mesh.matrix );
+      this.material.uniforms.invModelMatrix.value = invModelMatrix;
+
+      this.material.uniforms.invModelMatrix.value = new THREE.Matrix4().set( 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, 0, -0.5, 0, 0, 5 );
+
+      console.log(this.material.uniforms.invModelMatrix.value);
 
       mesh.material = this.material;
+      mesh.position.set(5, 0, 0);
 
-      var invModelMatrix = mesh.material.uniforms.invModelMatrix.value;
-      invModelMatrix.getInverse( mesh.matrix );
-      mesh.material.uniforms.invModelMatrix.value = invModelMatrix;
+      //this.updateVariables(data, 'attribute');
+      //this.updateVariables(data, 'uniform');
+
+      //this.material.uniforms.color.value.set(this.data.position);
+      this.material.src = data.src;
     }
   },
   tick: function (time, delta) {
-    //const mesh = this.el.getObject3D('mesh');
+    const mesh = this.el.getObject3D('mesh');
 
-    //var invModelMatrix = this.material.uniforms.invModelMatrix.value;
-    //console.log(invModelMatrix);
-
-    //console.log(mesh);
-    //invModelMatrix.getInverse( mesh.matrix );
-    //invModelMatrix.getInverse( this.matrix );
-
-    //console.log(invModelMatrix);
-    this.material.uniforms.invModelMatrix.value = 2;
+    var invModelMatrix = this.material.uniforms.invModelMatrix.value;
+    invModelMatrix.getInverse( mesh.matrix );
+    this.material.uniforms.invModelMatrix.value = invModelMatrix;
 
     this.material.uniforms.time.value = time / 1000; //always needed for flame flicker
-    //this.applyToMesh();
   },
   vertexShader: [
     "varying vec3 vWorldPos;",

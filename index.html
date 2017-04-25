@@ -55,19 +55,20 @@
       <!-- light -->
       <a-entity light="type: ambient; intensity: 0.2; color: #BBB"></a-entity>
       
-      <a-entity crate visible="true" position="1 0 5"></a-entity>
+      <a-entity crate visible="true" position="1 1 5"></a-entity>
       <!-- player -->
-      <a-entity id="player" position="0 0 1.5">
-      <!-- <a-entity id="player" position="0 9.8 9"> -->
+      <!-- <a-entity id="player" position="0 0 1.5"> -->
+      <a-entity id="player" position="0 9.8 4">
           
         <a-entity light="type: point; intensity: 1.5; distance: 17; decay: 4" position="0 0 0"></a-entity>
-        <a-entity camera look-controls wasd-controls="enabled: true">
+        <a-entity camera look-controls wasd-controls="enabled: false">
+        <!-- <a-entity camera look-controls wasd-controls="enabled: true"> -->
           <a-entity id="cursor" position="0 0 -1" geometry="primitive: ring; radiusOuter: 0.016; radiusInner: 0.01" material="color: #FFF;" cursor="fuse: true; maxDistance: 8">
             <a-animation begin="fusing" easing="ease" attribute="scale" fill="none" from="1 1 1" to="0 0 0" dur="1500"></a-animation>
           </a-entity>
 
           <!-- items -->
-          <a-collada-model id="player-sword" class="right-hand" visible="true" look-controls="enabled: false" src="models/sword.dae" position="0.7 -0.5 -1.2" rotation="50 0 60" scale="0.08 0.08 0.08"></a-collada-model>
+          <a-collada-model id="player-sword" class="right-hand" visible="false" look-controls="enabled: false" src="models/sword.dae" position="0.7 -0.5 -1.2" rotation="50 0 60" scale="0.08 0.08 0.08"></a-collada-model>
           <a-collada-model id="player-key" class="right-hand" visible="false" look-controls="enabled: false" src="models/key.dae" position="0.7 -0.5 -1.2" rotation="50 0 -120" scale="0.08 0.08 0.08"></a-collada-model>
           <a-collada-model id="player-shield" class="left-hand" visible="false" look-controls="enabled: false" src="models/shield.dae" position="-0.8 -0.8 -0.7" rotation="90 0 180" scale="0.08 0.08 0.08"></a-collada-model>
         </a-entity>
@@ -77,23 +78,8 @@
       <a-plane src="#texture-lost" position="0 8.6 10" rotation="0 180 0" width="25" height="15"></a-plane>
 
       <!-- volumetric fire -->
-      <a-sphere material-grid-glitch="color: blue;"
-                radius="0.5"
-                position="-2 1.5 -2">
-      </a-sphere>
-
-      <a-sphere fire position="0.5 0 0"></a-sphere>
-      <a-sphere fire position="0 0 0"></a-sphere>
-
-      <!-- <a-entity geometry="primitive: box; width: 1; height: 1; depth: 1" fire visible="true" position="0.5 0 0 0"></a-entity> -->
-
-      <!-- <a-sphere fire
-                scale="1.1 1.1 1.1"
-                radius="0.2"
-                position="0.5 0 0"
-                segments-height="128"
-                segments-width="128">
-      </a-sphere>
+      <a-sphere fire id="top-right"></a-sphere>
+      <a-sphere fire id="top-left"></a-sphere>
 
       <!-- inventory -->
       <a-entity id="inventory" position="0 8.1 4">
@@ -165,13 +151,13 @@
       https://github.com/aframevr/aframe/blob/master/docs/guides/index.md
       https://github.com/ngokevin/aframe-audio-visualizer-components/issues/4
       -->
-      <a-sound src="/assets/sounds/bolero-of-fire.mp3" autoplay="true" loop="true"
-    position="0 8 -10"></a-sound>
-      <!-- Orange Ball -->
-      <a-entity position="0 8 -10">
-        
-        <a-sphere position="0 4.2 0" radius="4.2" color="#F16745"
-                  roughness="0.8" width-segments="52" height-segments="52"></a-sphere>
+      <!-- flashing sphere -->
+      <a-entity position="0 0 -15">
+        <a-sound src="/assets/sounds/bolero-of-fire.mp3" autoplay="true" loop="true" position="0 0 0"></a-sound>
+        <a-sphere material-grid-glitch="color: red;"
+                  radius="0.5"
+                  position="0 4.2 0">
+        </a-sphere>
         <a-image src="#shadow3" rotation="-90 0 0" scale="3 3 3"></a-image>
       </a-entity>
 

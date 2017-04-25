@@ -79,8 +79,6 @@ AFRAME.registerComponent('fire', {
     const data = this.data,
           mesh = this.el.getObject3D('mesh');
 
-    this.cameraPosition = new THREE.Vector3();
-
     var loader = new THREE.TextureLoader();
     this.tex = loader.load( '/js/lib/three.fire/Fire.png' );
     this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
@@ -102,7 +100,6 @@ AFRAME.registerComponent('fire', {
         magnitude      : { type : "f",     value : 1.3 },
         lacunarity     : { type : "f",     value : 2.0 },
         gain           : { type : "f",     value : 0.5 },
-        vCameraPosition: { value: this.cameraPosition },
       },
       vertexShader: this.vertexShader,
       fragmentShader: this.fragmentShader,
@@ -117,33 +114,32 @@ AFRAME.registerComponent('fire', {
     });
     var wireframe = new THREE.Mesh(mesh.geometry, wireframeMat.clone());
     mesh.add(wireframe);
-    //wireframe.visible = true;
+    wireframe.visible = false;
 
     this.el.addEventListener('model-loaded', () => this.update());
   },
   update: function (data) {
     const mesh = this.el.getObject3D('mesh');
+    //console.log(this.el.id);
+
     if (mesh) {
-
-      //var m = new THREE.Matrix4();
-      //m.set( 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, 0, -0.5, 0, 0, 5 );
-
-      var invModelMatrix = this.material.uniforms.invModelMatrix.value;
-      invModelMatrix.getInverse( mesh.matrix );
-      this.material.uniforms.invModelMatrix.value = invModelMatrix;
-
-      this.material.uniforms.invModelMatrix.value = new THREE.Matrix4().set( 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, 0, -0.5, 0, 0, 5 );
-
-      console.log(this.material.uniforms.invModelMatrix.value);
-
+      //console.log(mesh);
       mesh.material = this.material;
-      mesh.position.set(5, 0, 0);
 
-      //this.updateVariables(data, 'attribute');
-      //this.updateVariables(data, 'uniform');
+      //this.el.setAttribute('position', {x: 5, y: 0, z: 0});
+      var test = this.el.getAttribute('position');
+      //console.log(test);
+      mesh.position.set(test.x, test.y, test.z);
 
-      //this.material.uniforms.color.value.set(this.data.position);
-      this.material.src = data.src;
+      if (this.el.id == "top-right") {
+        mesh.position.set(2.5, 11.5, 3);
+      } else if (this.el.id == "top-left") {
+        mesh.position.set(-2, 11.5, 3);
+      } else {
+        mesh.position.set(0, 0, 0);
+      }
+
+      //this.material.src = data.src;
     }
   },
   tick: function (time, delta) {

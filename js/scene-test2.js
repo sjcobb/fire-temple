@@ -1,29 +1,41 @@
 /*
 *** SCENE JS ***
 */
+//https://github.com/aframevr/aframe/issues/2560
+//https://glitch.com/edit/#!/sharp-middle?path=README.md:1:0
+//https://glitch.com/edit/#!/fixed-cent?path=README.md:1:0
 
-var glsl = require('glslify');
-var vertexShader = glsl.file('../assets/shaders/vertex.glsl');
-var fragmentShader = glsl.file('../assets/shaders/fragment.glsl');
+AFRAME.registerComponent('material-grid-glitch', {
+  schema: {color: {type: 'color'}},
 
-AFRAME.registerComponent('material-displacement', {
-  /**
-   * Creates a new THREE.ShaderMaterial using the two shaders defined
-   * in vertex.glsl and fragment.glsl.
-   */
   init: function () {
+    const data = this.data;
+  
     this.material  = new THREE.ShaderMaterial({
-      uniforms: {time: { value: 0.0 }},
-      vertexShader,
-      fragmentShader,
+      uniforms: {
+        time: { value: 0.0 },
+        color: { value: new THREE.Color(data.color) }
+      },
+      vertexShader: this.vertexShader,
+      fragmentShader: this.fragmentShader,
     });
-    this.el.addEventListener('model-loaded', () => this.update());
+
+    this.applyToMesh();
+    this.el.addEventListener('model-loaded', () => this.applyToMesh());
   },
 
+
+  /**
+   * Update the ShaderMaterial when component data changes.
+   */
+  update: function () {
+    this.material.uniforms.color.value.set(this.data.color);
+  },
+    
   /**
    * Apply the material to the current entity.
    */
-  update: function () {
+  applyToMesh: function() {
     const mesh = this.el.getObject3D('mesh');
     if (mesh) {
       mesh.material = this.material;
@@ -36,6 +48,28 @@ AFRAME.registerComponent('material-displacement', {
   tick: function (t) {
     this.material.uniforms.time.value = t / 1000;
   },
+
+  vertexShader: [
+    "varying vec2 vUv;",
+    "void main() {",
+      "vUv = uv;",
+      "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+    "}",
+  ].join('\n'),
+
+  fragmentShader: [
+    "varying vec2 vUv;",
+    "uniform vec3 color;",
+    "uniform float time;",
+    "void main() {",
+    "  gl_FragColor = mix(",
+    "    vec4(mod(vUv , 0.05) * 20.0, 1.0, 1.0),",
+    "    vec4(color, 1.0),",
+    "    sin(time)",
+    "  );",
+    "}",
+  ].join('\n'),
+  
 })
 
 /*** THREE.Fire: https://github.com/mattatz/THREE.Fire ***/
@@ -58,17 +92,17 @@ AFRAME.registerComponent('fire', {
         "OCTIVES"       : "3"
       },
       uniforms: {
-        "fireTex"         : { type : "t",     value : null },
-        "color"           : { type : "c",     value : null },
-        "time"            : { type : "f",     value : 0.0 },
-        "seed"            : { type : "f",     value : 0.0 },
-        "invModelMatrix"  : { type : "m4",    value : null },
-        "scale"           : { type : "v3",    value : null },
-        "noiseScale"      : { type : "v4",    value : new THREE.Vector4(1, 2, 1, 0.3) },
-        "magnitude"       : { type : "f",     value : 1.3 },
-        "lacunarity"      : { type : "f",     value : 2.0 },
-        "gain"            : { type : "f",     value : 0.5 },
-        "vCameraPosition" : { value: this.cameraPosition },
+        fireTex        : { type : "t",     value : this.tex },
+        color          : { type : "c",     value : new THREE.Color(0xeeeeee) },
+        time           : { type : "f",     value : 0.0 },
+        seed           : { type : "f",     value : Math.random() * 19.19 },
+        invModelMatrix : { type : "m4",    value : new THREE.Matrix4().set( 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, -0.5, 0, 0, 2 ) },
+        scale          : { type : "v3",    value : new THREE.Vector3(1, 1, 1) },
+        noiseScale     : { type : "v4",    value : new THREE.Vector4(1, 2, 1, 0.3) },
+        magnitude      : { type : "f",     value : 1.3 },
+        lacunarity     : { type : "f",     value : 2.0 },
+        gain           : { type : "f",     value : 0.5 },
+        vCameraPosition: { value: this.cameraPosition },
       },
       vertexShader: this.vertexShader,
       fragmentShader: this.fragmentShader,
@@ -76,21 +110,6 @@ AFRAME.registerComponent('fire', {
       depthWrite: false,
       depthTest: false
     } );
-
-    this.material.uniforms.fireTex.value = this.tex;
-    this.material.uniforms.color.value = new THREE.Color( 0xeeeeee );
-    this.material.uniforms.invModelMatrix.value = new THREE.Matrix4();
-    this.material.uniforms.scale.value = new THREE.Vector3( 1, 1, 1 );
-    this.material.uniforms.seed.value = Math.random() * 19.19;
-
-    //this.fire = new THREE.Mesh(this.geometry, this.material);
-    //this.fire.frustumCulled = false;
-    
-    //console.log(this.fire);
-    //el.setObject3D('fire-mesh', this.fire);
-
-    //this.applyToMesh();
-    //this.el.addEventListener('model-loaded', () => this.applyToMesh());
 
     var wireframeMat = new THREE.MeshBasicMaterial({
         color : new THREE.Color(0xffffff),
@@ -100,37 +119,40 @@ AFRAME.registerComponent('fire', {
     mesh.add(wireframe);
     //wireframe.visible = true;
 
-    mesh.material = this.material;
-    mesh.position.set(0.5, 0, 0);
+    this.el.addEventListener('model-loaded', () => this.update());
   },
   update: function (data) {
-    mesh = this.el.getObject3D('mesh');
-    //this.material.src = data.src;
-    //this.material.uniforms.scale.value = this.scale;
-
-    this.el.setAttribute('position', {x: 0.5, y: 0, z: 0});
-    //mesh.material = this.material;
-    this.applyToMesh();
-  },
-  applyToMesh: function() {
     const mesh = this.el.getObject3D('mesh');
-    console.log(mesh);
-
-    mesh.position.set(0.5, 0, 0);
-    console.log(mesh.position);
     if (mesh) {
-      var wireframeMat = new THREE.MeshBasicMaterial({
-          color : new THREE.Color(0xffffff),
-          wireframe : true
-      });
-      var wireframe = new THREE.Mesh(mesh.geometry, wireframeMat.clone());
-      mesh.add(wireframe);
-      //wireframe.visible = true;
+
+      //var m = new THREE.Matrix4();
+      //m.set( 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, 0, -0.5, 0, 0, 5 );
+
+      var invModelMatrix = this.material.uniforms.invModelMatrix.value;
+      invModelMatrix.getInverse( mesh.matrix );
+      this.material.uniforms.invModelMatrix.value = invModelMatrix;
+
+      this.material.uniforms.invModelMatrix.value = new THREE.Matrix4().set( 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, 0, -0.5, 0, 0, 5 );
+
+      console.log(this.material.uniforms.invModelMatrix.value);
 
       mesh.material = this.material;
+      mesh.position.set(5, 0, 0);
+
+      //this.updateVariables(data, 'attribute');
+      //this.updateVariables(data, 'uniform');
+
+      //this.material.uniforms.color.value.set(this.data.position);
+      this.material.src = data.src;
     }
   },
   tick: function (time, delta) {
+    const mesh = this.el.getObject3D('mesh');
+
+    var invModelMatrix = this.material.uniforms.invModelMatrix.value;
+    invModelMatrix.getInverse( mesh.matrix );
+    this.material.uniforms.invModelMatrix.value = invModelMatrix;
+
     this.material.uniforms.time.value = time / 1000; //always needed for flame flicker
   },
   vertexShader: [

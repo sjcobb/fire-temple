@@ -80,7 +80,7 @@ AFRAME.registerComponent('fire', {
           mesh = this.el.getObject3D('mesh');
 
     var loader = new THREE.TextureLoader();
-    this.tex = loader.load( '/js/lib/three.fire/Fire.png' );
+    this.tex = loader.load( '/fire-temple/lib/three.fire/Fire.png' );
     this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
     this.tex.wrapS = THREE.wrapT = THREE.ClampToEdgeWrapping;
 
@@ -330,7 +330,7 @@ AFRAME.registerComponent('crate', {
     var data = this.data;
     var el = this.el;
 
-    this.tex = THREE.ImageUtils.loadTexture("/assets/textures/crate.gif");
+    this.tex = THREE.ImageUtils.loadTexture("/fire-temple/assets/textures/crate.gif");
     this.geometry = new THREE.BoxBufferGeometry(data.width, data.height, data.depth);
 
     //this.material = new THREE.MeshStandardMaterial({color: data.color});

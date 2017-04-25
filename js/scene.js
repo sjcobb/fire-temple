@@ -80,7 +80,7 @@ AFRAME.registerComponent('fire', {
           mesh = this.el.getObject3D('mesh');
 
     var loader = new THREE.TextureLoader();
-    this.tex = loader.load( '/fire-temple/lib/three.fire/fire-tex.png' );
+    this.tex = loader.load( '/fire-temple/assets/textures/fire/firetex.png' );
     this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
     this.tex.wrapS = THREE.wrapT = THREE.ClampToEdgeWrapping;
 

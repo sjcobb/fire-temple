@@ -50,15 +50,10 @@
         <img id="tutorial-6" src="textures/tutorial_6.png?v=1">
         <img id="tutorial-7" src="textures/tutorial_7.png?v=1">
         <img id="tutorial-8" src="textures/tutorial_8.png?v=1">
+        
+        <a-asset-item id="tree-obj" src="/assets/models/ZeldaKey.obj"></a-asset-item>
+        <a-asset-item id="tree-mtl" src="/assets/models/ZeldaKey.mtl"></a-asset-item>
 
-        <!-- <img id="tutorial-1" src="textures/tutorial_1.png?v=1">
-        <img id="tutorial-2" src="textures/tutorial_2.png?v=1">
-        <img id="tutorial-3" src="textures/tutorial_3.png?v=1">
-        <img id="tutorial-4" src="textures/tutorial_4.png?v=1">
-        <img id="tutorial-5" src="textures/tutorial_5.png?v=1">
-        <img id="tutorial-6" src="textures/tutorial_6.png?v=1">
-        <img id="tutorial-7" src="textures/tutorial_7.png?v=1">
-        <img id="tutorial-8" src="textures/tutorial_8.png?v=1"> -->
       </a-assets>
       
       <!-- light -->
@@ -70,8 +65,7 @@
       <a-entity id="player" position="0 9.8 4">
           
         <a-entity light="type: point; intensity: 1.5; distance: 17; decay: 4" position="0 0 0"></a-entity>
-        <a-entity camera look-controls wasd-controls="enabled: false">
-        <!-- <a-entity camera look-controls wasd-controls="enabled: true"> -->
+        <a-entity camera look-controls wasd-controls="enabled: true">
           <a-entity id="cursor" position="0 0 -1" geometry="primitive: ring; radiusOuter: 0.016; radiusInner: 0.01" material="color: #FFF;" cursor="fuse: true; maxDistance: 8">
             <a-animation begin="fusing" easing="ease" attribute="scale" fill="none" from="1 1 1" to="0 0 0" dur="1500"></a-animation>
           </a-entity>
@@ -89,6 +83,9 @@
       <!-- volumetric fire -->
       <a-sphere fire id="top-right"></a-sphere>
       <a-sphere fire id="top-left"></a-sphere>
+      
+      <!-- door -->
+      <a-entity position="0 11 3" obj-model="obj: #tree-obj; mtl: #tree-mtl"></a-entity>
 
       <!-- inventory -->
       <a-entity id="inventory" position="0 8.1 4">

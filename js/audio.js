@@ -171,7 +171,7 @@ window.onload = function() {
     	camera.position.z = 2;
     	//scene.add(camera);
 
-    	var tex = THREE.ImageUtils.loadTexture("/js/lib/three.fire/Fire.png");
+    	var tex = THREE.ImageUtils.loadTexture("/fire-temple/assets/textures/fire/firetex.png");
     	fire = new THREE.Fire( tex );
 
     	//fire.position.set(0, 0, 0);

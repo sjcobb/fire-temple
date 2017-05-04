@@ -5,7 +5,6 @@
     <title>Audio</title>
   
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300" rel="stylesheet" type="text/css">
 
     <script src="js/lib/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.4/dat.gui.min.js"></script>
@@ -14,23 +13,16 @@
     <script src="js/lib/three.fire/Fire.js"></script>
 
     <style>
-        body {
-            font-family: 'Open Sans', serif;
-            font-size: 100%
-        }
-        
         .contentWrapper {
             width: 800px;
             margin: auto;
             font-size: 22px;
             font-weight: 200
         }
-        
         h1 {
             font-size: 60px;
             font-weight: 300
         }
-        
         .area {
             position: relative;
             background: #f8f8f8;
@@ -40,7 +32,6 @@
             width: 360px;
             height: 360px
         }
-        
         .circularBar {
             position: absolute;
             width: 10px;
@@ -51,7 +42,6 @@
             -webkit-transition: .1s ease all;
             border-bottom: 3px solid #0f0
         }
-        
         .curveBar {
             position: absolute;
             width: 10px;
@@ -63,7 +53,6 @@
             border-top: 3px solid red;
             -webkit-transition: .1s ease all
         }
-        
         #circularCenter {
             margin: auto;
             position: absolute;
@@ -76,7 +65,6 @@
             border-radius: 100%;
             background: red
         }
-        
         .circle {
             border-radius: 100%;
             background: rgba(0, 0, 0, .1);
@@ -89,7 +77,6 @@
             right: 0;
             -webkit-transition: .1s ease all
         }
-        
         .bar {
             position: absolute;
             bottom: 0;
@@ -97,7 +84,6 @@
             background: #000;
             -webkit-transition: .1s ease all
         }
-        
         .dot {
             position: absolute;
             bottom: 0;
@@ -106,7 +92,6 @@
             -webkit-transition: .1s ease all;
             height: 5px
         }
-        
         .symbar_left {
             position: absolute;
             right: 180px;
@@ -116,7 +101,6 @@
             border-top-left-radius: 15px;
             border-left: 5px solid #0f0
         }
-        
         .symbar_right {
             position: absolute;
             left: 180px;
@@ -126,7 +110,6 @@
             border-top-right-radius: 15px;
             border-right: 3px solid red
         }
-        
         .initiator {
             position: absolute;
             width: 360px;
@@ -136,7 +119,6 @@
             z-index: 10000;
             cursor: pointer
         }
-        
         .experiment {
             position: relative;
             float: left;
@@ -159,7 +141,7 @@
         <br> <a href="http://www.patrick-wied.at/blog/how-to-create-audio-visualizations-with-javascript-html" target="_blank" title="how to create audio visualizations with javascript">BLOG</a>
         <br>
 
-        <audio id="r0audio" src="/assets/sounds/bolero-of-fire.mp3"></audio>
+        <audio id="r0audio" src="fire-temple/assets/sounds/bolero-of-fire.mp3"></audio>
 
     </div>
 

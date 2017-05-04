@@ -3,6 +3,7 @@
 */
 
 var passViz;
+passViz = 0.2;
 console.log(passViz);
 
 /*** AUDIO API ***/
@@ -92,8 +93,8 @@ window.onload = function() {
             analyser.getByteFrequencyData(frequencyData);
 
             passViz = frequencyData;
-            //console.log(passViz);
-            console.log(passViz[0]);
+            console.log(passViz);
+            //console.log(passViz[0]);
 
             renderer.renderFrame(frequencyData);
             if (running) {
@@ -140,6 +141,10 @@ window.onload = function() {
 
     var camera, scene, renderer;
     var mesh;
+
+    var clock = new THREE.Clock();
+    var fire;
+
     init();
     animate();
     function init() {
@@ -150,7 +155,31 @@ window.onload = function() {
     	var geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
     	var material = new THREE.MeshBasicMaterial( { map: texture } );
     	mesh = new THREE.Mesh( geometry, material );
-    	scene.add( mesh );
+    	//scene.add( mesh );
+
+    	camera.position.z = 2;
+    	//scene.add(camera);
+
+    	var tex = THREE.ImageUtils.loadTexture("/js/lib/three.fire/Fire.png");
+    	fire = new THREE.Fire( tex );
+
+    	//fire.position.set(0, 0, 0);
+
+    	//fire.frustumCulled = false;
+
+    	var wireframeMat = new THREE.MeshBasicMaterial({
+    	    color : new THREE.Color(0xffffff),
+    	    wireframe : true
+    	});
+    	var wireframe = new THREE.Mesh(fire.geometry, wireframeMat.clone());
+    	fire.add(wireframe);
+    	wireframe.visible = true;
+    	//wireframe.visible = false;
+
+    	console.log(fire);
+    	scene.add(fire);
+
+    	/*** RENDERER ***/
     	renderer = new THREE.WebGLRenderer();
     	renderer.setPixelRatio( window.devicePixelRatio );
     	renderer.setSize( window.innerWidth, window.innerHeight );
@@ -165,13 +194,22 @@ window.onload = function() {
     }
     function animate() {
 
-    	requestAnimationFrame( animate );
+
+    	var elapsed = clock.getElapsedTime();
+
+    	fire.update(elapsed);
+    	//fire.position.z = passViz[0];
+
+    	//fire.position.z = 0.9;
+    	fire.position.x = passViz[0]/200;
 
     	//mesh.rotation.x += 0.005;
     	//mesh.rotation.y += 0.01;
     	
     	//console.log(passViz);
-    	mesh.rotation.y = passViz[0];
+    	//mesh.rotation.y = passViz[0];
+
+    	requestAnimationFrame( animate );
 
     	renderer.render( scene, camera );
 

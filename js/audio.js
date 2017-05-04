@@ -2,9 +2,20 @@
 *** AUDIO JS ***
 */
 
+var controller = {
+    speed       : 1.0,
+    magnitude   : 1.3,
+    lacunarity  : 2.0,
+    gain        : 0.5,
+    noiseScaleX : 1.0,
+    noiseScaleY : 2.0,
+    noiseScaleZ : 1.0,
+    wireframe   : false
+};
+
 var passViz;
 passViz = 0.2;
-console.log(passViz);
+//console.log(passViz);
 
 /*** AUDIO API ***/
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
@@ -93,7 +104,7 @@ window.onload = function() {
             analyser.getByteFrequencyData(frequencyData);
 
             passViz = frequencyData;
-            console.log(passViz);
+            //console.log(passViz);
             //console.log(passViz[0]);
 
             renderer.renderFrame(frequencyData);
@@ -176,8 +187,33 @@ window.onload = function() {
     	wireframe.visible = true;
     	//wireframe.visible = false;
 
-    	console.log(fire);
+    	//console.log(fire);
     	scene.add(fire);
+
+    	var onUpdateMat = function() {
+    	    fire.material.uniforms.magnitude.value = controller.magnitude;
+    	    fire.material.uniforms.lacunarity.value = controller.lacunarity;
+    	    fire.material.uniforms.gain.value = controller.gain;
+    	    fire.material.uniforms.noiseScale.value = new THREE.Vector4(
+    	        controller.noiseScaleX,
+    	        controller.noiseScaleY,
+    	        controller.noiseScaleZ,
+    	        0.3
+    	    );
+    	};
+    	var gui = new dat.GUI();
+    	gui.add(controller, "speed", 0.1, 10.0).step(0.1);
+    	gui.add(controller, "magnitude", 0.0, 10.0).step(0.1).onChange(onUpdateMat);
+    	gui.add(controller, "lacunarity", 0.0, 10.0).step(0.1).onChange(onUpdateMat);
+    	gui.add(controller, "gain", 0.0, 5.0).step(0.1).onChange(onUpdateMat);
+    	gui.add(controller, "noiseScaleX", 0.5, 5.0).step(0.1).onChange(onUpdateMat);
+    	gui.add(controller, "noiseScaleY", 0.5, 5.0).step(0.1).onChange(onUpdateMat);
+    	gui.add(controller, "noiseScaleZ", 0.5, 5.0).step(0.1).onChange(onUpdateMat);
+    	gui.add(controller, "wireframe").onChange(function() {
+    	    var wireframe = fire.children[0];
+    	    wireframe.visible = controller.wireframe;
+    	});
+    	console.log(controller.speed);
 
     	/*** RENDERER ***/
     	renderer = new THREE.WebGLRenderer();
@@ -197,11 +233,11 @@ window.onload = function() {
 
     	var elapsed = clock.getElapsedTime();
 
-    	fire.update(elapsed);
-    	//fire.position.z = passViz[0];
+    	var t = clock.elapsedTime * controller.speed;
+    	fire.update(t);
 
-    	//fire.position.z = 0.9;
-    	fire.position.x = passViz[0]/200;
+    	//fire.update(elapsed);
+    	//fire.position.x = passViz[0]/200;
 
     	//mesh.rotation.x += 0.005;
     	//mesh.rotation.y += 0.01;

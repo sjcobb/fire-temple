@@ -233,9 +233,16 @@ window.onload = function() {
 
     	var elapsed = clock.getElapsedTime();
 
-    	var t = clock.elapsedTime * controller.speed;
+    	//var t = clock.elapsedTime * controller.speed;
+
+    	var vizSpeed = passViz[0] * 0.01;
+    	var t = clock.elapsedTime * vizSpeed;
+    	console.log(vizSpeed);
+    	
     	fire.update(t);
 
+    	//console.log(passViz[0] * 0.01);
+    	//console.log(passViz[0]);
     	//fire.update(elapsed);
     	//fire.position.x = passViz[0]/200;
 

@@ -17,6 +17,15 @@ var passViz;
 passViz = 0.2;
 //console.log(passViz);
 
+//var grades = [80, 77, 88, 95, 68];
+var grades = [245, 235, 198, 159, 135, 120, 116, 107, 102, 96, 96, 102, 97, 78, 46, 39, 32, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+function getAvg(grades) {
+  return grades.reduce(function (p, c) {
+  return p + c;
+}) / grades.length;
+}
+console.log(getAvg(grades));
+
 /*** AUDIO API ***/
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
 var renderers = {
@@ -104,7 +113,7 @@ window.onload = function() {
             analyser.getByteFrequencyData(frequencyData);
 
             passViz = frequencyData;
-            //console.log(passViz);
+            console.log(passViz);
             //console.log(passViz[0]);
 
             renderer.renderFrame(frequencyData);
@@ -213,7 +222,7 @@ window.onload = function() {
     	    var wireframe = fire.children[0];
     	    wireframe.visible = controller.wireframe;
     	});
-    	console.log(controller.speed);
+    	//console.log(controller.speed);
 
     	/*** RENDERER ***/
     	renderer = new THREE.WebGLRenderer();
@@ -237,7 +246,7 @@ window.onload = function() {
 
     	var vizSpeed = passViz[0] * 0.01;
     	var t = clock.elapsedTime * vizSpeed;
-    	console.log(vizSpeed);
+    	//console.log(vizSpeed);
     	
     	fire.update(t);
 

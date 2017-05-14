@@ -17,6 +17,7 @@ var passViz;
 passViz = 0.2;
 //console.log(passViz);
 
+//https://blog.prototypr.io/get-started-with-the-web-audio-api-for-music-visualization-b6f594416a16
 //http://stackoverflow.com/questions/29544371/finding-the-average-of-an-array-using-js
 //https://johnresig.com/blog/fast-javascript-maxmin
 
@@ -35,7 +36,8 @@ var grades = [245, 235, 198, 159, 135, 120, 116, 107, 102, 96, 96, 102, 97, 78, 
 function getAvg(grades) {
   return grades.reduce(function (p, c) {
   return p + c;
-}) / grades.length;
+//}) / grades.length;
+}) / 16; //cut array in half to account for overload of 0's in freq distribution
 }
 
 function normalize(val, max, min) { 
@@ -139,8 +141,15 @@ window.onload = function() {
             analyser.getByteFrequencyData(frequencyData);
 
             passViz = frequencyData;
-            console.log(passViz);
+            //console.log(passViz);
             //console.log(passViz[0]);
+
+            grades = passViz;
+            freqMax = Array.max(grades);
+            freqAvg = getAvg(grades);
+            console.log("max: " + freqMax);
+            console.log("freqAvg: " + freqAvg);
+            console.log(normalize(freqAvg, freqMax, 0));
 
             renderer.renderFrame(frequencyData);
             if (running) {
@@ -268,10 +277,12 @@ window.onload = function() {
 
     	var elapsed = clock.getElapsedTime();
 
-    	//var t = clock.elapsedTime * controller.speed;
 
-    	var vizSpeed = passViz[0] * 0.01;
-    	var t = clock.elapsedTime * vizSpeed;
+        var vizSpeed = passViz[0] * 0.01;
+        //var t = clock.elapsedTime * vizSpeed;
+
+    	var t = clock.elapsedTime * controller.speed;
+
     	//console.log(vizSpeed);
     	
     	fire.update(t);
@@ -285,6 +296,7 @@ window.onload = function() {
     	//mesh.rotation.y += 0.01;
     	
     	//console.log(passViz);
+
     	//mesh.rotation.y = passViz[0];
 
     	requestAnimationFrame( animate );

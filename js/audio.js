@@ -13,17 +13,16 @@ var controller = {
     wireframe   : false
 };
 
-var passViz;
-//passViz = 0.2;
-passViz = [0];
+var fire;
 
-var freqMax;
-var freqAvg;
-var freqNorm = 1;
+var passViz = [0];
 
-//https://blog.prototypr.io/get-started-with-the-web-audio-api-for-music-visualization-b6f594416a16
-//http://stackoverflow.com/questions/29544371/finding-the-average-of-an-array-using-js
-//https://johnresig.com/blog/fast-javascript-maxmin
+var freqMax,
+    freqAvg,
+    freqNorm = 1;
+
+var vizLac = 2.0;
+var vizActive = false;
 
 Array.max = function( array ){
     return Math.max.apply( Math, array );
@@ -52,11 +51,22 @@ function normalize(val, max, min) {
 function distFreq(freq) {
     var max = Array.max(freq);
     var avg = getAvg(freq);
-    var norm = normalize(avg, max, 0) + 1 || 0;
+    var norm = normalize(avg, max, 0) + 1 || 0; //arbitrarily add # so viz looks better
     //var norm = normalize(avg, max, 0) || 1;
     console.log("max: " + max);
     console.log("freqAvg: " + avg);
     console.log("freqNorm: " + norm);
+
+    vizLac = norm + 1.2; //arbitrarily add # so viz looks better
+    console.log("lacunarity: " + vizLac);
+    fire.material.uniforms.lacunarity.value = vizLac;
+
+    if (norm !== 0) {
+        vizActive = true;
+    } else {
+        vizActive = false;
+    }
+
     return norm;
 }
 
@@ -149,6 +159,7 @@ window.onload = function() {
             return running;
         }
         var renderFrame = function() {
+            /*** WHERE MAGIC HAPPENS ***/
             analyser.getByteFrequencyData(frequencyData);
 
             passViz = frequencyData;
@@ -202,7 +213,7 @@ window.onload = function() {
     var mesh;
 
     var clock = new THREE.Clock();
-    var fire;
+    //var fire;
 
     init();
     animate();
@@ -233,15 +244,24 @@ window.onload = function() {
     	var wireframe = new THREE.Mesh(fire.geometry, wireframeMat.clone());
     	fire.add(wireframe);
     	wireframe.visible = true;
-    	//wireframe.visible = false;
+    	wireframe.visible = false;
+
+        //fire.scale.set(1.5, 1.5, 1.5); //adds black strip on rotation?
 
     	//console.log(fire);
     	scene.add(fire);
 
+        //fire.material.uniforms.lacunarity.value = vizLac;
+
     	var onUpdateMat = function() {
     	    fire.material.uniforms.magnitude.value = controller.magnitude;
-    	    fire.material.uniforms.lacunarity.value = controller.lacunarity;
+
+            fire.material.uniforms.lacunarity.value = controller.lacunarity;
+            //fire.material.uniforms.lacunarity.value = vizLac;
+    	    //fire.material.uniforms.lacunarity.value = vizLac + 5;
+
     	    fire.material.uniforms.gain.value = controller.gain;
+
     	    fire.material.uniforms.noiseScale.value = new THREE.Vector4(
     	        controller.noiseScaleX,
     	        controller.noiseScaleY,
@@ -282,29 +302,27 @@ window.onload = function() {
     	var elapsed = clock.getElapsedTime();
 
 
-        var vizSpeed = passViz[0] * 0.01;
+        //var vizSpeed = passViz[0] * 0.01;
         //var t = clock.elapsedTime * vizSpeed;
     	//console.log(vizSpeed);
 
-        //console.log("controller.speed: " + controller.speed);
-        //var t = clock.elapsedTime * controller.speed;
-
-
-        //console.log("NORM ANIM: " + freqNorm);
         var t = clock.elapsedTime * freqNorm;
         //var t = clock.elapsedTime * controller.speed;
 
         //console.log(t);
     	fire.update(t);
 
-    	//fire.position.x = passViz[0]/200;
+        //fire.position.x = passViz[0]/200;
+    	//fire.position.x += 0.01;
 
-    	//mesh.rotation.x += 0.005;
-    	//mesh.rotation.y += 0.01;
-    	
-    	//console.log(passViz);
-
-    	//mesh.rotation.y = passViz[0];
+        if (vizActive == true) {
+            fire.rotation.y += 0.005;
+            fire.rotation.x += 0.005;
+            //fire.rotation.z += 0.005;
+        }
+        
+        //console.log(passViz);
+    	//fire.rotation.y = passViz[0];
 
     	requestAnimationFrame( animate );
 

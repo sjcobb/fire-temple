@@ -17,14 +17,40 @@ var passViz;
 passViz = 0.2;
 //console.log(passViz);
 
+//http://stackoverflow.com/questions/29544371/finding-the-average-of-an-array-using-js
+//https://johnresig.com/blog/fast-javascript-maxmin
+
+Array.max = function( array ){
+    return Math.max.apply( Math, array );
+};
+ 
+Array.min = function( array ){
+    return Math.min.apply( Math, array );
+};
+
 //var grades = [80, 77, 88, 95, 68];
+var grades = [145, 138, 103, 49, 39, 39, 38, 33, 26, 21, 15, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var grades = [245, 235, 198, 159, 135, 120, 116, 107, 102, 96, 96, 102, 97, 78, 46, 39, 32, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
 function getAvg(grades) {
   return grades.reduce(function (p, c) {
   return p + c;
 }) / grades.length;
 }
-console.log(getAvg(grades));
+
+function normalize(val, max, min) { 
+    return (val - min) / (max - min); 
+}
+
+//console.log(getAvg(grades));
+
+
+var freqMax = Array.max(grades);
+var freqAvg = getAvg(grades);
+console.log("max: " + freqMax);
+console.log("freqAvg: " + freqAvg);
+
+console.log(normalize(freqAvg, freqMax, 0));
 
 /*** AUDIO API ***/
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;

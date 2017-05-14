@@ -14,8 +14,12 @@ var controller = {
 };
 
 var passViz;
-passViz = 0.2;
-//console.log(passViz);
+//passViz = 0.2;
+passViz = [0];
+
+var freqMax;
+var freqAvg;
+var freqNorm = 1;
 
 //https://blog.prototypr.io/get-started-with-the-web-audio-api-for-music-visualization-b6f594416a16
 //http://stackoverflow.com/questions/29544371/finding-the-average-of-an-array-using-js
@@ -48,16 +52,17 @@ function normalize(val, max, min) {
 function distFreq(freq) {
     var max = Array.max(freq);
     var avg = getAvg(freq);
-    var norm = normalize(avg, max, 0) || 1;
+    var norm = normalize(avg, max, 0) + 1 || 0;
+    //var norm = normalize(avg, max, 0) || 1;
     console.log("max: " + max);
     console.log("freqAvg: " + avg);
     console.log("freqNorm: " + norm);
     return norm;
 }
 
-var freqMax;
-var freqAvg;
-var freqNorm = 1;
+window.setInterval(function(){
+    freqNorm = distFreq(passViz);
+}, 500);
 
 
 /*** AUDIO API ***/
@@ -149,18 +154,6 @@ window.onload = function() {
             passViz = frequencyData;
             //console.log(passViz);
             //console.log(passViz[0]);
-
-            grades = passViz;
-            freqMax = Array.max(grades);
-            freqAvg = getAvg(grades);
-            
-            freqNorm = normalize(freqAvg, freqMax, 0) || 1; //http://stackoverflow.com/questions/7540397/convert-nan-to-0-in-javascript
-            //freqNorm = normalize(freqAvg, freqMax, 0) + 1 || 1; //arbitrarily add 1 so viz looks better
-            //console.log("max: " + freqMax);
-            //console.log("freqAvg: " + freqAvg);
-            //console.log("freqNorm: " + freqNorm);
-
-            distFreq(grades);
 
             renderer.renderFrame(frequencyData);
             if (running) {
@@ -301,6 +294,7 @@ window.onload = function() {
         var t = clock.elapsedTime * freqNorm;
         //var t = clock.elapsedTime * controller.speed;
 
+        //console.log(t);
     	fire.update(t);
 
     	//fire.position.x = passViz[0]/200;

@@ -32,6 +32,7 @@ Array.min = function( array ){
 //var grades = [80, 77, 88, 95, 68];
 var grades = [145, 138, 103, 49, 39, 39, 38, 33, 26, 21, 15, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var grades = [245, 235, 198, 159, 135, 120, 116, 107, 102, 96, 96, 102, 97, 78, 46, 39, 32, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var grades;
 
 function getAvg(grades) {
   return grades.reduce(function (p, c) {
@@ -44,15 +45,20 @@ function normalize(val, max, min) {
     return (val - min) / (max - min); 
 }
 
-//console.log(getAvg(grades));
+function distFreq(freq) {
+    var max = Array.max(freq);
+    var avg = getAvg(freq);
+    var norm = normalize(avg, max, 0) || 1;
+    console.log("max: " + max);
+    console.log("freqAvg: " + avg);
+    console.log("freqNorm: " + norm);
+    return norm;
+}
 
+var freqMax;
+var freqAvg;
+var freqNorm = 1;
 
-var freqMax = Array.max(grades);
-var freqAvg = getAvg(grades);
-console.log("max: " + freqMax);
-console.log("freqAvg: " + freqAvg);
-
-console.log(normalize(freqAvg, freqMax, 0));
 
 /*** AUDIO API ***/
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
@@ -147,9 +153,14 @@ window.onload = function() {
             grades = passViz;
             freqMax = Array.max(grades);
             freqAvg = getAvg(grades);
-            console.log("max: " + freqMax);
-            console.log("freqAvg: " + freqAvg);
-            console.log(normalize(freqAvg, freqMax, 0));
+            
+            freqNorm = normalize(freqAvg, freqMax, 0) || 1; //http://stackoverflow.com/questions/7540397/convert-nan-to-0-in-javascript
+            //freqNorm = normalize(freqAvg, freqMax, 0) + 1 || 1; //arbitrarily add 1 so viz looks better
+            //console.log("max: " + freqMax);
+            //console.log("freqAvg: " + freqAvg);
+            //console.log("freqNorm: " + freqNorm);
+
+            distFreq(grades);
 
             renderer.renderFrame(frequencyData);
             if (running) {
@@ -280,16 +291,18 @@ window.onload = function() {
 
         var vizSpeed = passViz[0] * 0.01;
         //var t = clock.elapsedTime * vizSpeed;
-
-    	var t = clock.elapsedTime * controller.speed;
-
     	//console.log(vizSpeed);
-    	
+
+        //console.log("controller.speed: " + controller.speed);
+        //var t = clock.elapsedTime * controller.speed;
+
+
+        //console.log("NORM ANIM: " + freqNorm);
+        var t = clock.elapsedTime * freqNorm;
+        //var t = clock.elapsedTime * controller.speed;
+
     	fire.update(t);
 
-    	//console.log(passViz[0] * 0.01);
-    	//console.log(passViz[0]);
-    	//fire.update(elapsed);
     	//fire.position.x = passViz[0]/200;
 
     	//mesh.rotation.x += 0.005;

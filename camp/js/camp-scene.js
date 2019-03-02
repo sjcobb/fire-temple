@@ -5,6 +5,7 @@
 //console.clear();
 console.log('CAMP SCENE -> INIT');
 
+var clock = new THREE.Clock();
 var scene, camera, renderer, orbit, light;
 
 scene = new THREE.Scene();
@@ -340,11 +341,13 @@ logs.forEach((log, i) => {
 
     log.rotation.z = HALFPI / 2;// * Math.sin(i+1);
     //log.rotation.y = HALFPI / 2 * Math.cos((i / logs.length) * TWOPI);
+
+    //console.log({log});
     scene.add(log);
 });
+//console.log('logs -> position', logs);
 
 // *** GROUND *** //
-
 function snowyGround() {
 
     let geometry = new THREE.PlaneGeometry(500, 500, 22, 12);
@@ -493,13 +496,41 @@ function pointsParticles() {
 let updateParticles;
 updateParticles = pointsParticles();
 
+// *** VOLUMETRIC FIRE *** //
+
+VolumetricFire.texturePath = '/fire-temple/assets/textures/flame/';
+//VolumetricFire.texturePath = '../../assets/textures/flame/'; //err: 404
+
+var fireWidth  = 15;
+var fireHeight = 30;
+var fireDepth  = 15;
+//var sliceSpacing = 0.5;
+var sliceSpacing = 1.0;
+
+var volumetricFire = new VolumetricFire( fireWidth, fireHeight, fireDepth, sliceSpacing, camera );
+
+//volumetricFire.mesh.position.set( 0, fireHeight / 2, 0 );
+//volumetricFire.mesh.position.set(0, 10, -20); //left-right, top-down, forward-back
+
+//volumetricFire.mesh.position.set(0.2, 5, 1); //{x: 0.21396826794326645, y: 5, z: 1}
+volumetricFire.mesh.position.set(0.2, 18, 1); //{x: 0.21396826794326645, y: 5, z: 1}
+
+console.log({volumetricFire});
+scene.add(volumetricFire.mesh);
+//scene.add(fire2.mesh);
+
+///////////////////////////////////
 // *** RENDERER - ANIMATION  *** //
+///////////////////////////////////
 
 renderer.gammaInput = true;
 renderer.gammaOutput = true;
 
+var lastRender = 0;
 let count = 3;
-function render() {
+function render(timestamp) {
+    var delta = Math.min(timestamp - lastRender, 500);
+    //console.log({delta});
 
     requestAnimationFrame(render);
     count += 0.03;
@@ -514,6 +545,9 @@ function render() {
     //   if ( child.material ) { child.material.needsUpdate = true; }
     // });
 
+    var elapsed = clock.getElapsedTime();
+    volumetricFire.update( elapsed );
+    volumetricFire.mesh.rotation.y += delta * 0.0006;
 
     renderer.toneMappingExposure = Math.pow(0.91, 5.0);
 

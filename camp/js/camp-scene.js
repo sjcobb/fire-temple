@@ -12,6 +12,10 @@ scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x242426, 20, 400);
 
 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 10, 400);
+
+//camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000);
+//camera.position.z = 2;
+
 camera.position.z = 100;
 camera.position.y = 50;
 camera.position.x = 30;
@@ -80,13 +84,12 @@ function makeSprite() {
 
 // *** LIGHTING *** //
 var ambientLight = new THREE.AmbientLight(0x222222);
-scene.add(ambientLight);
-
+//scene.add(ambientLight);
 
 let hemiLight = new THREE.HemisphereLight(0xEBF7FD, 0xEBF7FD, 0.2);
 //hemiLight.color.setRGB(0.75,0.8,0.95);
 hemiLight.position.set(0, 100, 0);
-scene.add(hemiLight);
+//scene.add(hemiLight);
 
 // *** CANVAS MAPPING *** //
 function noiseMap(size, intensity) {
@@ -233,8 +236,7 @@ flames.forEach((flame, i) => {
     flame.position.z = 9 * Math.cos((i / flames.length) * TWOPI) + Math.sin(Math.random());
     flame.position.x = 9 * Math.sin((i / flames.length) * TWOPI) + Math.sin(Math.random());
     flame.position.y = 14;
-    scene.add(flame);
-
+    //scene.add(flame);
 });
 
 // *** FIRE PARTICLES *** //
@@ -271,7 +273,7 @@ function makeFireParticles() {
     });
 
     let particles = new THREE.Points(pointGeometry, pointMaterial);
-    scene.add(particles);
+    //scene.add(particles);
 
     let count = 0;
     return function () {
@@ -343,7 +345,7 @@ logs.forEach((log, i) => {
     //log.rotation.y = HALFPI / 2 * Math.cos((i / logs.length) * TWOPI);
 
     //console.log({log});
-    scene.add(log);
+    //scene.add(log);
 });
 //console.log('logs -> position', logs);
 
@@ -380,7 +382,7 @@ function snowyGround() {
     return plane;
 
 }
-scene.add(snowyGround());
+//scene.add(snowyGround());
 
 // *** TREES *** //
 let treeMaterial = new THREE.MeshPhongMaterial({
@@ -394,6 +396,7 @@ let treeMaterial = new THREE.MeshPhongMaterial({
 
 function Cone(size, translate) {
     size = size || 10;
+
     this.geometry = new THREE.CylinderGeometry(size / 2, size, size, 6);
     if (translate) {
         this.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, size, 0));
@@ -445,7 +448,7 @@ for (let i = 0; i < 24;) {
     tree.position.x = Math.sin(i + Math.random() * 0.2) * 200;//(treeCount/2 - i) * 30;
     tree.position.z = Math.cos(i + Math.random() * 0.1) * 260;
     trees.push(tree);
-    scene.add(tree);
+    //scene.add(tree);
 
     i++; //= Math.random() * 1.2;
 }
@@ -478,8 +481,8 @@ function pointsParticles() {
     });
 
     let particles = new THREE.Points(pointGeometry, pointMaterial);
-    scene.add(particles);
-    console.log(particles.geometry);
+    //scene.add(particles);
+    //console.log(particles.geometry);
 
     let count = 0;
     return function () {
@@ -498,26 +501,51 @@ updateParticles = pointsParticles();
 
 // *** VOLUMETRIC FIRE *** //
 
-VolumetricFire.texturePath = '/fire-temple/assets/textures/flame/';
+//VolumetricFire.texturePath = '/fire-temple/assets/textures/flame/';
 //VolumetricFire.texturePath = '../../assets/textures/flame/'; //err: 404
+//var volumetricFire = new VolumetricFire( fireWidth, fireHeight, fireDepth, sliceSpacing, camera );
+//volumetricFire.mesh.position.set(0.2, 8, 1); //{x: 0.21396826794326645, y: 5, z: 1}
 
-var fireWidth  = 15;
-var fireHeight = 30;
-var fireDepth  = 15;
-//var sliceSpacing = 0.5;
-var sliceSpacing = 1.0;
+var loader = new THREE.TextureLoader();
+loader.crossOrigin = '';
 
-var volumetricFire = new VolumetricFire( fireWidth, fireHeight, fireDepth, sliceSpacing, camera );
+//var fireTex = loader.load("https://s3-us-west-2.amazonaws.com/s.cdpn.io/212131/Fire.png");
+//var fireTex = loader.load("/fire-temple/assets/textures/flame/FireTexture-640.png");
+var fireTex = loader.load("/fire-temple/assets/textures/flame/FireOrig.png");
 
-//volumetricFire.mesh.position.set( 0, fireHeight / 2, 0 );
-//volumetricFire.mesh.position.set(0, 10, -20); //left-right, top-down, forward-back
+var wireframeMat = new THREE.MeshBasicMaterial({
+    color : new THREE.Color(0xffffff),
+    wireframe : true
+});
+//https://stackoverflow.com/questions/24723471/three-js-scale-model-with-scale-set-or-increase-model-size
 
-//volumetricFire.mesh.position.set(0.2, 5, 1); //{x: 0.21396826794326645, y: 5, z: 1}
-volumetricFire.mesh.position.set(0.2, 18, 1); //{x: 0.21396826794326645, y: 5, z: 1}
+//http://mattatz.github.io/THREE.Fire/
+volumetricFire = new THREE.Fire(fireTex);
 
+var fireUniforms = volumetricFire.material.uniforms;
+console.log({fireUniforms});
+// gain: {type: "f", value: 0.5}
+// invModelMatrix: {type: "m4", value: K}
+// lacunarity: {type: "f", value: 2}
+// magnitude: {type: "f", value: 1.3}
+// noiseScale: {type: "v4", value: fa}
+
+volumetricFire.material.uniforms.magnitude.value = 0.8;
+volumetricFire.material.uniforms.lacunarity.value = 1.0;
+
+//volumetricFire.scale.set(100, 100, 100);
+volumetricFire.scale.set(100, 100, 100);
+
+var wireframe = new THREE.Mesh(volumetricFire.geometry, wireframeMat.clone());
+volumetricFire.add(wireframe);
+wireframe.visible = true;
+//wireframe.visible = false;
+
+//volumetricFire.position.set(0.2, 5, 1); //{x: 0.21396826794326645, y: 5, z: 1}
+volumetricFire.position.set(0, 0, 0); //{x: 0.21396826794326645, y: 5, z: 1}
+scene.add(volumetricFire);
 console.log({volumetricFire});
-scene.add(volumetricFire.mesh);
-//scene.add(fire2.mesh);
+console.log({camera});
 
 ///////////////////////////////////
 // *** RENDERER - ANIMATION  *** //
@@ -529,7 +557,16 @@ renderer.gammaOutput = true;
 var lastRender = 0;
 let count = 3;
 function render(timestamp) {
+    //var delta = clock.getDelta();
     var delta = Math.min(timestamp - lastRender, 500);
+    lastRender = timestamp;
+
+    var elapsedTime = clock.getElapsedTime();
+    //console.log({elapsedTime});
+
+    volumetricFire.update(elapsedTime);
+    //volumetricFire.mesh.rotation.y += delta * 0.0006;
+
     //console.log({delta});
 
     requestAnimationFrame(render);
@@ -544,10 +581,6 @@ function render(timestamp) {
     // scene.traverse( (child) => {
     //   if ( child.material ) { child.material.needsUpdate = true; }
     // });
-
-    var elapsed = clock.getElapsedTime();
-    volumetricFire.update( elapsed );
-    volumetricFire.mesh.rotation.y += delta * 0.0006;
 
     renderer.toneMappingExposure = Math.pow(0.91, 5.0);
 

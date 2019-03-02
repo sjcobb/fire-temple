@@ -12,13 +12,16 @@ scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x242426, 20, 400);
 
 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 10, 400);
+//camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000); //if no scale.set(50, 60, 50);
 
-//camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000);
-//camera.position.z = 2;
+//camera.position.x = 30; //default
+//camera.position.y = 50; //default
+//camera.position.z = 100; //default
 
-camera.position.z = 100;
-camera.position.y = 50;
-camera.position.x = 30;
+camera.position.x = 45;
+camera.position.y = 15;
+camera.position.z = 80; //side to side, up / down, depth (more = closer)
+
 camera.updateProjectionMatrix();
 
 renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -51,8 +54,10 @@ orbit.zoomSpeed = 0.3;
 orbit.autoRotate = false;
 orbit.autoRotateSpeed = 0.6;
 
-//orbit.minPolarAngle = Math.PI * 0.3;
-orbit.maxPolarAngle = Math.PI * 0.45;
+//orbit.minPolarAngle = Math.PI * 0.3; //looking down
+//orbit.maxPolarAngle = Math.PI * 0.45; //can't look up?
+//orbit.maxPolarAngle = Math.PI * 0.65; //looking up
+orbit.maxPolarAngle = Math.PI * 0.50; //looking up
 
 //orbit.minAzimuthAngle = -Math.PI * 0.2; // radians
 //orbit.maxAzimuthAngle = Math.PI * 0.2; // radians
@@ -84,12 +89,12 @@ function makeSprite() {
 
 // *** LIGHTING *** //
 var ambientLight = new THREE.AmbientLight(0x222222);
-//scene.add(ambientLight);
+scene.add(ambientLight);
 
 let hemiLight = new THREE.HemisphereLight(0xEBF7FD, 0xEBF7FD, 0.2);
 //hemiLight.color.setRGB(0.75,0.8,0.95);
 hemiLight.position.set(0, 100, 0);
-//scene.add(hemiLight);
+scene.add(hemiLight);
 
 // *** CANVAS MAPPING *** //
 function noiseMap(size, intensity) {
@@ -138,7 +143,7 @@ function makeLight(color) {
 
     // var sphereSize = 20;
     // var pointLightHelper = new THREE.PointLightHelper( light, sphereSize );
-    // light.add( pointLightHelper );
+    //light.add( pointLightHelper ); //err: not defined
 
     return light;
 }
@@ -236,7 +241,7 @@ flames.forEach((flame, i) => {
     flame.position.z = 9 * Math.cos((i / flames.length) * TWOPI) + Math.sin(Math.random());
     flame.position.x = 9 * Math.sin((i / flames.length) * TWOPI) + Math.sin(Math.random());
     flame.position.y = 14;
-    //scene.add(flame);
+    scene.add(flame);
 });
 
 // *** FIRE PARTICLES *** //
@@ -273,7 +278,7 @@ function makeFireParticles() {
     });
 
     let particles = new THREE.Points(pointGeometry, pointMaterial);
-    //scene.add(particles);
+    scene.add(particles);
 
     let count = 0;
     return function () {
@@ -345,7 +350,7 @@ logs.forEach((log, i) => {
     //log.rotation.y = HALFPI / 2 * Math.cos((i / logs.length) * TWOPI);
 
     //console.log({log});
-    //scene.add(log);
+    scene.add(log);
 });
 //console.log('logs -> position', logs);
 
@@ -382,7 +387,7 @@ function snowyGround() {
     return plane;
 
 }
-//scene.add(snowyGround());
+scene.add(snowyGround());
 
 // *** TREES *** //
 let treeMaterial = new THREE.MeshPhongMaterial({
@@ -448,7 +453,7 @@ for (let i = 0; i < 24;) {
     tree.position.x = Math.sin(i + Math.random() * 0.2) * 200;//(treeCount/2 - i) * 30;
     tree.position.z = Math.cos(i + Math.random() * 0.1) * 260;
     trees.push(tree);
-    //scene.add(tree);
+    scene.add(tree);
 
     i++; //= Math.random() * 1.2;
 }
@@ -481,7 +486,7 @@ function pointsParticles() {
     });
 
     let particles = new THREE.Points(pointGeometry, pointMaterial);
-    //scene.add(particles);
+    scene.add(particles);
     //console.log(particles.geometry);
 
     let count = 0;
@@ -524,25 +529,34 @@ volumetricFire = new THREE.Fire(fireTex);
 
 var fireUniforms = volumetricFire.material.uniforms;
 console.log({fireUniforms});
+//DEFAULTS:
 // gain: {type: "f", value: 0.5}
 // invModelMatrix: {type: "m4", value: K}
 // lacunarity: {type: "f", value: 2}
 // magnitude: {type: "f", value: 1.3}
 // noiseScale: {type: "v4", value: fa}
 
-volumetricFire.material.uniforms.magnitude.value = 0.8;
-volumetricFire.material.uniforms.lacunarity.value = 1.0;
+//volumetricFire.material.uniforms.magnitude.value = 0.7;
+volumetricFire.material.uniforms.magnitude.value = 0.5; //higher = spaciness
+//volumetricFire.material.uniforms.lacunarity.value = 1.0; //higher = more grainy
+volumetricFire.material.uniforms.lacunarity.value = 0.1;   //lower = more cartoony
+//volumetricFire.material.uniforms.lacunarity.value = 3.0;   //lower = more cartoony
+volumetricFire.material.uniforms.lacunarity.gain = 0.1;     //more = less height
+//volumetricFire.material.uniforms.noiseScale.value.x = 2.5; //num of fires horiz
 
-//volumetricFire.scale.set(100, 100, 100);
-volumetricFire.scale.set(100, 100, 100);
+//volumetricFire.scale.set(50, 50, 50); //too short
+volumetricFire.scale.set(50, 65, 50); //width, height, z
 
 var wireframe = new THREE.Mesh(volumetricFire.geometry, wireframeMat.clone());
 volumetricFire.add(wireframe);
-wireframe.visible = true;
-//wireframe.visible = false;
+wireframe.visible = false;
+//wireframe.visible = true;
 
 //volumetricFire.position.set(0.2, 5, 1); //{x: 0.21396826794326645, y: 5, z: 1}
-volumetricFire.position.set(0, 0, 0); //{x: 0.21396826794326645, y: 5, z: 1}
+//volumetricFire.position.set(0, 35, -1); //side to side, up / down, depth (more = closer)
+volumetricFire.position.set(0, 40, -1); //side to side, up / down, depth (more = closer)
+//volumetricFire.position.set(0, 0, 0);
+
 scene.add(volumetricFire);
 console.log({volumetricFire});
 console.log({camera});
@@ -561,10 +575,13 @@ function render(timestamp) {
     var delta = Math.min(timestamp - lastRender, 500);
     lastRender = timestamp;
 
-    var elapsedTime = clock.getElapsedTime();
-    //console.log({elapsedTime});
+    //var flameRate = clock.getElapsedTime(); //too slow
+    //var flameRate = timestamp; //too fast
+    //var flameRate = delta * 0.006; //too jittery
+    var flameRate = clock.getElapsedTime() * 2.0;
+    //console.log({flameRate});
 
-    volumetricFire.update(elapsedTime);
+    volumetricFire.update(flameRate);
     //volumetricFire.mesh.rotation.y += delta * 0.0006;
 
     //console.log({delta});

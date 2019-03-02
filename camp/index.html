@@ -22,10 +22,39 @@
             }
 
             canvas { display: block; }
+
+            /*** CCAPTURE ***/
+            body > div {
+                font-family: sans-serif !important;
+            }
+            .scene-container {
+                text-align: center;
+            }
+            .buttonHolder {
+                display: inline-block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                margin: 0;
+            }
         </style>
     </head>
 
     <body>
+        
+        <div class="scene-container">
+            <!--<div class="container" style="position:fixed;width:100%;height:100%;top:0;left:0"></div>-->
+
+            <div class="buttonHolder">
+                <button class="startButton" onclick="startCapture360()">Start Capture</button>
+                <button class="saveButton" onclick="stopCapture360()">Stop Capture</button>
+            </div>
+
+            <!-- <div class="webgl-container">
+                <div id="WebGL-output"></div>
+            </div> -->
+        </div> <!-- end scene-container -->
 
     </body>
 
@@ -39,6 +68,16 @@
     <!-- <script src="../js/lib/VolumetricFire.js"></script> -->
     <script src="https://cdn.rawgit.com/mattatz/THREE.Fire/master/FireShader.js"></script>
     <script src="https://cdn.rawgit.com/mattatz/THREE.Fire/master/Fire.js"></script>
+
+    <!-- *** MOVIE CAPTURE J360 *** -->
+    <script src="lib/CCapture.js"></script>
+    <!-- Include tar.js if you want to export PNG or JPEG -->
+    <script src="lib/tar.js"></script>
+    <!-- Include download.js for easier file download -->
+    <script src="lib/download.js"></script>
+    <!-- 360 capture section -->
+    <script src="lib/CubemapToEquirectangular.js"></script>
+
 
     <!-- *** INIT SCENE *** -->
     <script src="./js/camp-scene.js"></script>

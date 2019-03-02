@@ -5,6 +5,27 @@
 //console.clear();
 console.log('CAMP SCENE -> INIT');
 
+/*** J360 ***/
+// Create a capturer that exports Equirectangular 360 JPG images in a TAR file
+var canvas;
+var equiManaged;
+var capturer360 = new CCapture({
+    format: 'threesixty',
+    display: true,
+    autoSaveTime: 30,
+});
+console.log(capturer360);
+
+function startCapture360(event) {
+    capturer360.start();
+}
+function stopCapture360(event) {
+    capturer360.stop();
+}
+
+///////////////////////////////////
+/*** CREATE SCENE, CAMERA ***/
+///////////////////////////////////
 var clock = new THREE.Clock();
 var scene, camera, renderer, orbit, light;
 
@@ -39,10 +60,14 @@ window.addEventListener('resize', function () {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }, false);
 
+/*** J360 ***/
+equiManaged = new CubemapToEquirectangular(renderer, true, "2K"); //"1K", "4K"
+console.log({equiManaged});
+
+/*** MUST COME AFTER CCAPTURE equiManaged ***/
 document.body.appendChild(renderer.domElement);
 
 // *** CONTROLS *** //
-
 orbit = new THREE.OrbitControls(camera, renderer.domElement);
 orbit.enableZoom = true;
 orbit.enablePan = false;
@@ -603,7 +628,7 @@ function render(timestamp) {
 
     renderer.render(scene, camera);
 
-
+    capturer360.capture(canvas);
 };
 
 render();

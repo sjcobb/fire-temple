@@ -13,7 +13,7 @@ var capturer360 = new CCapture({
     format: 'threesixty',
     display: true,
     //framerate: 12,
-    autoSaveTime: 3,
+    autoSaveTime: 70,
     //autoSaveTime: 0.5,
     //autoSaveTime: 45,
 });
@@ -66,11 +66,12 @@ camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight,
 //camera.position.x = -40; //further left in vid
 //camera.position.x = 120; //slight right
 //camera.position.x = 100; //complete turn
-camera.position.x = 60;
+camera.position.x = 70;
 camera.position.y = 50;
 //camera.position.z = 60; //too far
 //camera.position.z = 42;
-camera.position.z = 38; //good
+//camera.position.z = 38; //good
+camera.position.z = 42;
 
 var cameraPosClone = camera.position;
 console.log({cameraPosClone});

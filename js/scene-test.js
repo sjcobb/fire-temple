@@ -3,8 +3,150 @@
 */
 //https://github.com/aframevr/aframe/issues/2560
 //https://glitch.com/edit/#!/sharp-middle?path=README.md:1:0
-//https://glitch.com/edit/#!/fixed-cent?path=README.md:1:0
+AFRAME.registerComponent('material-displacement', {
+  init: function () {
+    this.material  = new THREE.ShaderMaterial({
+      uniforms: {time: { value: 0.0 }},
+      vertexShader: this.vertexShader,
+      fragmentShader: this.fragmentShader,
+    });
+    this.el.addEventListener('model-loaded', () => this.update());
+  },
 
+  update: function () {
+    const mesh = this.el.getObject3D('mesh');
+    if (mesh) {
+      mesh.material = this.material;
+    }
+  },
+
+  tick: function (t) {
+    this.material.uniforms.time.value = t / 1000;
+  },
+
+  vertexShader: [
+    "varying float noise;",
+    "void main() {",
+      "vec3 color = vec3(1. - 2. * noise);",
+      "gl_FragColor = vec4( color.rgb, 1.0 );",
+    "}"
+  ].join('\n'),
+
+  fragmentShader: [
+    //"float pnoise3(vec3 P, vec3 rep) {",
+    "#pragma pnoise3 = ",
+      "vec3 mod289(vec3 x)",
+      "{",
+        "return x - floor(x * (1.0 / 289.0)) * 289.0;",
+      "}",
+      "vec4 mod289(vec4 x)",
+      "{",
+        "return x - floor(x * (1.0 / 289.0)) * 289.0;",
+      "}",
+      "vec4 permute(vec4 x)",
+      "{",
+        "return mod289(((x*34.0)+1.0)*x);",
+      "}",
+      "vec4 taylorInvSqrt(vec4 r)",
+      "{",
+        "return 1.79284291400159 - 0.85373472095314 * r;",
+      "}",
+      "vec3 fade(vec3 t) {",
+        "return t*t*t*(t*(t*6.0-15.0)+10.0);",
+      "}",
+      // Classic Perlin noise, periodic variant
+      "float pnoise(vec3 P, vec3 rep)",
+      "{",
+        "vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period",
+        "vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period",
+        "Pi0 = mod289(Pi0);",
+        "Pi1 = mod289(Pi1);",
+        "vec3 Pf0 = fract(P); // Fractional part for interpolation",
+        "vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0",
+        "vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);",
+        "vec4 iy = vec4(Pi0.yy, Pi1.yy);",
+        "vec4 iz0 = Pi0.zzzz;",
+        "vec4 iz1 = Pi1.zzzz;",
+
+        "vec4 ixy = permute(permute(ix) + iy);",
+        "vec4 ixy0 = permute(ixy + iz0);",
+        "vec4 ixy1 = permute(ixy + iz1);",
+
+        "vec4 gx0 = ixy0 * (1.0 / 7.0);",
+        "vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;",
+        "gx0 = fract(gx0);",
+        "vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);",
+        "vec4 sz0 = step(gz0, vec4(0.0));",
+        "gx0 -= sz0 * (step(0.0, gx0) - 0.5);",
+        "gy0 -= sz0 * (step(0.0, gy0) - 0.5);",
+
+        "vec4 gx1 = ixy1 * (1.0 / 7.0);",
+        "vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;",
+        "gx1 = fract(gx1);",
+        "vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);",
+        "vec4 sz1 = step(gz1, vec4(0.0));",
+        "gx1 -= sz1 * (step(0.0, gx1) - 0.5);",
+        "gy1 -= sz1 * (step(0.0, gy1) - 0.5);",
+
+        "vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);",
+        "vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);",
+        "vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);",
+        "vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);",
+        "vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);",
+        "vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);",
+        "vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);",
+        "vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);",
+
+        "vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));",
+        "g000 *= norm0.x;",
+        "g010 *= norm0.y;",
+        "g100 *= norm0.z;",
+        "g110 *= norm0.w;",
+        "vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));",
+        "g001 *= norm1.x;",
+        "g011 *= norm1.y;",
+        "g101 *= norm1.z;",
+        "g111 *= norm1.w;",
+
+        "float n000 = dot(g000, Pf0);",
+        "float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));",
+        "float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));",
+        "float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));",
+        "float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));",
+        "float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));",
+        "float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));",
+        "float n111 = dot(g111, Pf1);",
+
+        "vec3 fade_xyz = fade(Pf0);",
+        "vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);",
+        "vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);",
+        "float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);",
+        "return 2.2 * n_xyz;",
+      "}",
+    "}",
+    "varying float noise;",
+    "uniform float time;",
+    "float turbulence( vec3 p ) {",
+      "float w = 100.0;",
+      "float t = -.5;",
+      "for (float f = 1.0 ; f <= 10.0 ; f++ ){",
+        "float power = pow( 2.0, f );",
+        "t += abs( pnoise3( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );",
+      "}",
+      "return t;",
+    "}",
+    "void main() {",
+      "noise = 10.0 *  -.10 * turbulence( .5 * normal + time / 3.0 );",
+      "float b = 5.0 * pnoise3( 0.05 * position, vec3( 100.0 ) );",
+      "float displacement = (- 10. * noise + b) / 50.0;",
+
+      "vec3 newPosition = position + normal * displacement;",
+      "gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );",
+    "}",
+  ].join('\n'),
+});
+
+//https://glitch.com/edit/#!/fixed-cent?path=README.md:1:0
 AFRAME.registerComponent('material-grid-glitch', {
   schema: {color: {type: 'color'}},
 
@@ -79,8 +221,10 @@ AFRAME.registerComponent('fire', {
     const data = this.data,
           mesh = this.el.getObject3D('mesh');
 
+    this.cameraPosition = new THREE.Vector3();
+
     var loader = new THREE.TextureLoader();
-    this.tex = loader.load( 'https://sjcobb.github.io/fire-temple/assets/textures/fire/firetex.png' );
+    this.tex = loader.load( '/js/lib/three.fire/Fire.png' );
     this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
     this.tex.wrapS = THREE.wrapT = THREE.ClampToEdgeWrapping;
 
@@ -90,16 +234,17 @@ AFRAME.registerComponent('fire', {
         "OCTIVES"       : "3"
       },
       uniforms: {
-        fireTex        : { type : "t",     value : this.tex },
-        color          : { type : "c",     value : new THREE.Color(0xeeeeee) },
-        time           : { type : "f",     value : 0.0 },
-        seed           : { type : "f",     value : Math.random() * 19.19 },
-        invModelMatrix : { type : "m4",    value : new THREE.Matrix4().set( 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, -0.5, 0, 0, 2 ) },
-        scale          : { type : "v3",    value : new THREE.Vector3(1, 1, 1) },
-        noiseScale     : { type : "v4",    value : new THREE.Vector4(1, 2, 1, 0.3) },
-        magnitude      : { type : "f",     value : 1.3 },
-        lacunarity     : { type : "f",     value : 2.0 },
-        gain           : { type : "f",     value : 0.5 },
+        "fireTex"         : { type : "t",     value : null },
+        "color"           : { type : "c",     value : null },
+        "time"            : { type : "f",     value : 0.0 },
+        "seed"            : { type : "f",     value : 0.0 },
+        "invModelMatrix"  : { type : "m4",    value : null },
+        "scale"           : { type : "v3",    value : null },
+        "noiseScale"      : { type : "v4",    value : new THREE.Vector4(1, 2, 1, 0.3) },
+        "magnitude"       : { type : "f",     value : 1.3 },
+        "lacunarity"      : { type : "f",     value : 2.0 },
+        "gain"            : { type : "f",     value : 0.5 },
+        "vCameraPosition" : { value: this.cameraPosition },
       },
       vertexShader: this.vertexShader,
       fragmentShader: this.fragmentShader,
@@ -108,47 +253,60 @@ AFRAME.registerComponent('fire', {
       depthTest: false
     } );
 
+    this.material.uniforms.fireTex.value = this.tex;
+    this.material.uniforms.color.value = new THREE.Color( 0xeeeeee );
+    this.material.uniforms.invModelMatrix.value = new THREE.Matrix4();
+    this.material.uniforms.scale.value = new THREE.Vector3( 1, 1, 1 );
+    this.material.uniforms.seed.value = Math.random() * 19.19;
+
+    //this.fire = new THREE.Mesh(this.geometry, this.material);
+    //this.fire.frustumCulled = false;
+    
+    //console.log(this.fire);
+    //el.setObject3D('fire-mesh', this.fire);
+
+    //this.applyToMesh();
+    //this.el.addEventListener('model-loaded', () => this.applyToMesh());
+
     var wireframeMat = new THREE.MeshBasicMaterial({
         color : new THREE.Color(0xffffff),
         wireframe : true
     });
     var wireframe = new THREE.Mesh(mesh.geometry, wireframeMat.clone());
     mesh.add(wireframe);
-    wireframe.visible = false;
+    //wireframe.visible = true;
 
-    this.el.addEventListener('model-loaded', () => this.update());
+    mesh.material = this.material;
+    mesh.position.set(0.5, 0, 0);
   },
   update: function (data) {
+    mesh = this.el.getObject3D('mesh');
+    //this.material.src = data.src;
+    //this.material.uniforms.scale.value = this.scale;
+
+    this.el.setAttribute('position', {x: 0.5, y: 0, z: 0});
+    //mesh.material = this.material;
+    this.applyToMesh();
+  },
+  applyToMesh: function() {
     const mesh = this.el.getObject3D('mesh');
-    //console.log(this.el.id);
+    console.log(mesh);
 
+    mesh.position.set(0.5, 0, 0);
+    console.log(mesh.position);
     if (mesh) {
-      //console.log(mesh);
+      var wireframeMat = new THREE.MeshBasicMaterial({
+          color : new THREE.Color(0xffffff),
+          wireframe : true
+      });
+      var wireframe = new THREE.Mesh(mesh.geometry, wireframeMat.clone());
+      mesh.add(wireframe);
+      //wireframe.visible = true;
+
       mesh.material = this.material;
-
-      //this.el.setAttribute('position', {x: 5, y: 0, z: 0});
-      var test = this.el.getAttribute('position');
-      //console.log(test);
-      mesh.position.set(test.x, test.y, test.z);
-
-      if (this.el.id == "top-right") {
-        mesh.position.set(2.5, 11.5, 3);
-      } else if (this.el.id == "top-left") {
-        mesh.position.set(-2, 11.5, 3);
-      } else {
-        mesh.position.set(0, 0, 0);
-      }
-
-      //this.material.src = data.src;
     }
   },
   tick: function (time, delta) {
-    const mesh = this.el.getObject3D('mesh');
-
-    var invModelMatrix = this.material.uniforms.invModelMatrix.value;
-    invModelMatrix.getInverse( mesh.matrix );
-    this.material.uniforms.invModelMatrix.value = invModelMatrix;
-
     this.material.uniforms.time.value = time / 1000; //always needed for flame flicker
   },
   vertexShader: [
@@ -330,7 +488,7 @@ AFRAME.registerComponent('crate', {
     var data = this.data;
     var el = this.el;
 
-    this.tex = THREE.ImageUtils.loadTexture("/fire-temple/assets/textures/crate.gif");
+    this.tex = THREE.ImageUtils.loadTexture("/assets/textures/crate.gif");
     this.geometry = new THREE.BoxBufferGeometry(data.width, data.height, data.depth);
 
     //this.material = new THREE.MeshStandardMaterial({color: data.color});

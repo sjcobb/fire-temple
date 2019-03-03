@@ -1,40 +1,24 @@
 {
-  "name": "webvr-boilerplate",
-  "version": "0.4.9",
-  "description": "A starting point for web-based VR experiences that work in both Cardboard and Oculus.",
-  "main": "build/webvr-manager.js",
-  "directories": {
-    "test": "test"
-  },
-  "dependencies": {
-    "es6-promise": "^4.0.5",
-    "three": "^0.81.2",
-    "three-firstperson-vr-controls": "^0.1.0",
-    "webvr-polyfill": "^0.9.3"
-  },
-  "devDependencies": {
-    "browserify": "latest",
-    "derequire": "latest",
-    "watchify": "latest"
-  },
+  "name": "fire",
+  "version": "1.0.0",
+  "description": "",
+  //"main": "index.js",
   "scripts": {
-    "build": "browserify src/webvr-manager.js --standalone WebVRManager | derequire > build/webvr-manager.js",
-    "watch": "watchify src/webvr-manager.js --standalone WebVRManager -v -d -o 'derequire > build/webvr-manager.js'",
-    "test": "browserify test/device-info-test.js  > build/device-info-test.js",
-    "copy-polyfill": "cp ../webvr-polyfill/build/webvr-polyfill.js node_modules/webvr-polyfill/build/webvr-polyfill.js",
-    "copy-three": "./scripts/copy-three.sh"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/borismus/webvr-boilerplate.git"
+    "url": "git+https://github.com/sjcobb/fire-temple.git"
   },
-  "keywords": [
-    "vr"
-  ],
-  "author": "Boris Smus",
-  "license": "Apache-2.0",
+  "author": "",
+  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/borismus/webvr-boilerplate/issues"
+    "url": "https://github.com/sjcobb/fire-temple/issues"
   },
-  "homepage": "https://github.com/borismus/webvr-boilerplate#readme"
+  "homepage": "https://github.com/sjcobb/fire-temple#readme",
+  "dependencies": {
+    "browserify": "^14.3.0",
+    "glsl-noise": "0.0.0",
+    "glslify": "^6.0.2"
+  }
 }

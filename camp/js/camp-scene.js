@@ -12,8 +12,10 @@ var equiManaged;
 var capturer360 = new CCapture({
     format: 'threesixty',
     display: true,
-    autoSaveTime: 0.2,
-    //autoSaveTime: 30,
+    framerate: 12,
+    //autoSaveTime: 0.2,
+    autoSaveTime: 0.5,
+    //autoSaveTime: 45,
 });
 console.log(capturer360);
 
@@ -36,17 +38,25 @@ scene.fog = new THREE.Fog(0x242426, 20, 400);
 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 10, 400);
 //camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000); //if no scale.set(50, 60, 50);
 
-//camera.position.x = 30; //default
-//camera.position.y = 50; //default
-//camera.position.z = 100; //default
+camera.position.x = 30; //default
+camera.position.y = 50; //default
+camera.position.z = 100; //default
 
-//camera.position.x = 45;
-//camera.position.y = 15; //low view
-//camera.position.z = 80; //side to side, up / down, depth (more = closer)
+//low view
+// camera.position.x = 45;
+// camera.position.y = 15; 
+// camera.position.z = 80; //side to side, up / down, depth (more = closer)
 
-camera.position.x = -100;
-camera.position.y = 50;
-camera.position.z = 100;
+//shift left view
+// camera.position.x = -100;
+// camera.position.y = 50;
+// camera.position.z = 100;
+
+//directly in front of fire
+// camera.position.x = 0;
+// camera.position.y = 0;
+// camera.position.z = 0;
+
 var cameraPosClone = camera.position;
 console.log({cameraPosClone});
 
@@ -71,8 +81,8 @@ window.addEventListener('resize', function () {
 equiManaged = new CubemapToEquirectangular(renderer, true, "2K"); //"1K", "4K"
 
 console.log('PRE equiManaged: ', equiManaged);
-equiManaged.camera.left = 0;
-equiManaged.camera.position = cameraPosClone; //no effect
+//equiManaged.camera.left = 0;
+//equiManaged.camera.position = cameraPosClone; //no effect
 
 console.log('POST equiManaged: ', equiManaged);
 //console.log('pre renderer append camera: ', camera);

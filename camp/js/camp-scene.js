@@ -12,7 +12,8 @@ var equiManaged;
 var capturer360 = new CCapture({
     format: 'threesixty',
     display: true,
-    autoSaveTime: 30,
+    autoSaveTime: 0.2,
+    //autoSaveTime: 30,
 });
 console.log(capturer360);
 
@@ -39,9 +40,15 @@ camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight,
 //camera.position.y = 50; //default
 //camera.position.z = 100; //default
 
-camera.position.x = 45;
-camera.position.y = 15;
-camera.position.z = 80; //side to side, up / down, depth (more = closer)
+//camera.position.x = 45;
+//camera.position.y = 15; //low view
+//camera.position.z = 80; //side to side, up / down, depth (more = closer)
+
+camera.position.x = -100;
+camera.position.y = 50;
+camera.position.z = 100;
+var cameraPosClone = camera.position;
+console.log({cameraPosClone});
 
 camera.updateProjectionMatrix();
 
@@ -62,7 +69,13 @@ window.addEventListener('resize', function () {
 
 /*** J360 ***/
 equiManaged = new CubemapToEquirectangular(renderer, true, "2K"); //"1K", "4K"
-console.log({equiManaged});
+
+console.log('PRE equiManaged: ', equiManaged);
+equiManaged.camera.left = 0;
+equiManaged.camera.position = cameraPosClone; //no effect
+
+console.log('POST equiManaged: ', equiManaged);
+//console.log('pre renderer append camera: ', camera);
 
 /*** MUST COME AFTER CCAPTURE equiManaged ***/
 document.body.appendChild(renderer.domElement);
@@ -374,6 +387,8 @@ logs.forEach((log, i) => {
     log.rotation.z = HALFPI / 2;// * Math.sin(i+1);
     //log.rotation.y = HALFPI / 2 * Math.cos((i / logs.length) * TWOPI);
 
+    var shiftAllX = 200;
+    //log.position.x -= shiftAllX;
     //console.log({log});
     scene.add(log);
 });
@@ -553,7 +568,7 @@ var wireframeMat = new THREE.MeshBasicMaterial({
 volumetricFire = new THREE.Fire(fireTex);
 
 var fireUniforms = volumetricFire.material.uniforms;
-console.log({fireUniforms});
+//console.log({fireUniforms});
 //DEFAULTS:
 // gain: {type: "f", value: 0.5}
 // invModelMatrix: {type: "m4", value: K}
@@ -583,7 +598,7 @@ volumetricFire.position.set(0, 40, -1); //side to side, up / down, depth (more =
 //volumetricFire.position.set(0, 0, 0);
 
 scene.add(volumetricFire);
-console.log({volumetricFire});
+//console.log({volumetricFire});
 console.log({camera});
 
 ///////////////////////////////////

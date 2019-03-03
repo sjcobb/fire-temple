@@ -25,7 +25,8 @@ function CubemapToEquirectangular(renderer, provideCubeCamera, resolution) {
 		this.material
 	);
 	this.scene.add(this.quad);
-	this.camera = new THREE.OrthographicCamera(1 / -2, 1 / 2, 1 / 2, 1 / -2, -10000, 10000);
+	//this.camera = new THREE.OrthographicCamera(1 / -2, 1 / 2, 1 / 2, 1 / -2, -10000, 10000);
+	this.camera = new THREE.OrthographicCamera(1 / -2, 0.5, 1 / 2, 1 / -2, -10000, 10000);
 
 	this.canvas = document.createElement('canvas');
 	this.ctx = this.canvas.getContext('2d');
@@ -125,6 +126,10 @@ CubemapToEquirectangular.prototype.setSize = function(width, height) {
 	this.camera.top = this.height / 2;
 	this.camera.bottom = this.height / -2;
 
+	//camera.position.x = -100;
+	//camera.position.y = 50;
+	//camera.position.z = 100;
+
 	this.camera.updateProjectionMatrix();
 
 	this.output = new THREE.WebGLRenderTarget(this.width, this.height, {
@@ -139,21 +144,21 @@ CubemapToEquirectangular.prototype.setSize = function(width, height) {
 	this.canvas.width = this.width;
 	this.canvas.height = this.height;
 
-}
+};
 
 CubemapToEquirectangular.prototype.getCubeCamera = function(size) {
 
 	this.cubeCamera = new THREE.CubeCamera(.1, 10000, Math.min(this.cubeMapSize, size));
 	return this.cubeCamera;
 
-}
+};
 
 CubemapToEquirectangular.prototype.attachCubeCamera = function(camera) {
 
 	this.getCubeCamera();
 	this.attachedCamera = camera;
 
-}
+};
 
 CubemapToEquirectangular.prototype.convert = function(cubeCamera) {
 
@@ -186,17 +191,21 @@ CubemapToEquirectangular.prototype.convert = function(cubeCamera) {
 
 	}, 'image/jpeg');
 
-}
+};
 
 CubemapToEquirectangular.prototype.preBlob = function(cubeCamera) {
 
 	var autoClear = this.renderer.autoClear;
 	this.renderer.autoClear = true;
 	this.cubeCamera.position.copy(camera.position);
+
 	this.cubeCamera.updateCubeMap(this.renderer, scene);
 	this.renderer.autoClear = autoClear;
-
+	
 	this.quad.material.uniforms.map.value = cubeCamera.renderTarget.texture;
+	console.log('CubeCamera: ', this.CubeCamera);
+	console.log('Cubemap -> camera: ', this.camera);
+
 	this.renderer.render(this.scene, this.camera, this.output, true);
 
 	var pixels = new Uint8Array(4 * this.width * this.height);
@@ -206,8 +215,7 @@ CubemapToEquirectangular.prototype.preBlob = function(cubeCamera) {
 
 	this.ctx.putImageData(imageData, 0, 0);
 
-}
-
+};
 
 CubemapToEquirectangular.prototype.update = function(camera, scene) {
 
@@ -217,6 +225,7 @@ CubemapToEquirectangular.prototype.update = function(camera, scene) {
 	this.cubeCamera.updateCubeMap(this.renderer, scene);
 	this.renderer.autoClear = autoClear;
 
+	console.log('update CubeCamera: ', this.CubeCamera);
 	this.convert(this.cubeCamera);
 
-}
+};

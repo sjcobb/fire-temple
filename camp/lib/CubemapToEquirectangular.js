@@ -130,10 +130,18 @@ CubemapToEquirectangular.prototype.setSize = function(width, height) {
 	var shiftCubeCam = 700;
 	console.log('Cube -> width: ', this.width); //2048
 	console.log('PRE -> camera.left: ', this.camera.left); //-1024
-	this.camera.left += shiftCubeCam; //pretty good, logs get squished 
-	this.camera.right += shiftCubeCam;
-	console.log('POST -> camera.left: ', this.camera.left);
-	console.log('POST -> camera.right: ', this.camera.left);
+	console.log('PRE -> camera: ', this.camera); //
+	
+	//this.camera.rotation.x += 90; //flips upside down
+	//this.camera.rotation.y += 20; //squishes
+	//this.camera.rotation.z += 20; //diagonal
+
+	//this.camera.left += shiftCubeCam; //pretty good, logs get squished 
+	//this.camera.right += shiftCubeCam; //add right (black space to right)
+
+	//console.log('POST -> camera.left: ', this.camera.left);
+	//console.log('POST -> camera.right: ', this.camera.left);
+	console.log('POST -> camera: ', this.camera); //
 
 	//camera.position.x = -100;
 	//camera.position.y = 50;
@@ -234,7 +242,7 @@ CubemapToEquirectangular.prototype.update = function(camera, scene) {
 	this.cubeCamera.updateCubeMap(this.renderer, scene);
 	this.renderer.autoClear = autoClear;
 
-	console.log('update CubeCamera: ', this.CubeCamera);
+	//console.log('update CubeCamera: ', this.CubeCamera);
 	this.convert(this.cubeCamera);
 
 };

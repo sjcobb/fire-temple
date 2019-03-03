@@ -12,12 +12,18 @@ var equiManaged;
 var capturer360 = new CCapture({
     format: 'threesixty',
     display: true,
-    framerate: 12,
-    //autoSaveTime: 0.2,
-    autoSaveTime: 0.5,
+    //framerate: 12,
+    autoSaveTime: 3,
+    //autoSaveTime: 0.5,
     //autoSaveTime: 45,
 });
 console.log(capturer360);
+
+//var shiftAllX = 120;
+//var shiftAllZ = -90;
+
+var shiftAllX = 0;
+var shiftAllZ = 0;
 
 function startCapture360(event) {
     capturer360.start();
@@ -38,24 +44,33 @@ scene.fog = new THREE.Fog(0x242426, 20, 400);
 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 10, 400);
 //camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000); //if no scale.set(50, 60, 50);
 
-camera.position.x = 30; //default
-camera.position.y = 50; //default
-camera.position.z = 100; //default
+// camera.position.x = 30; //default
+// camera.position.y = 50; //default
+// camera.position.z = 100; //default
 
 //low view
 // camera.position.x = 45;
 // camera.position.y = 15; 
 // camera.position.z = 80; //side to side, up / down, depth (more = closer)
 
-//shift left view
+//shift left view (vid shift right)
 // camera.position.x = -100;
 // camera.position.y = 50;
 // camera.position.z = 100;
 
-//directly in front of fire
+//directly in front of fire (vid shift slightly left)
 // camera.position.x = 0;
 // camera.position.y = 0;
 // camera.position.z = 0;
+
+//camera.position.x = -40; //further left in vid
+//camera.position.x = 120; //slight right
+//camera.position.x = 100; //complete turn
+camera.position.x = 60;
+camera.position.y = 50;
+//camera.position.z = 60; //too far
+//camera.position.z = 42;
+camera.position.z = 38; //good
 
 var cameraPosClone = camera.position;
 console.log({cameraPosClone});
@@ -397,9 +412,11 @@ logs.forEach((log, i) => {
     log.rotation.z = HALFPI / 2;// * Math.sin(i+1);
     //log.rotation.y = HALFPI / 2 * Math.cos((i / logs.length) * TWOPI);
 
-    var shiftAllX = 200;
-    //log.position.x -= shiftAllX;
-    //console.log({log});
+    //x, y, x ////side to side, up / down, depth (more = closer)
+    log.position.x += shiftAllX;
+    log.position.z += shiftAllZ;
+
+    console.log({log});
     scene.add(log);
 });
 //console.log('logs -> position', logs);
